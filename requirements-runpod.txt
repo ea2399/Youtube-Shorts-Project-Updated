@@ -55,7 +55,6 @@ scenedetect==0.6.*
 
 # === UTILITIES & DATA PROCESSING ===
 pydantic==2.5.0
-pydantic-v1
 httpx==0.25.2
 orjson==3.9.10
 structlog==23.2.0

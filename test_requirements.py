@@ -66,6 +66,20 @@ def test_imports():
         print("✓ scenedetect imported successfully")
     except ImportError as e:
         print(f"✗ scenedetect failed: {e}")
+        
+    try:
+        import pydantic
+        print(f"✓ pydantic imported successfully (version: {pydantic.__version__})")
+        
+        # Test pydantic v1 compatibility if available
+        try:
+            from pydantic.v1 import BaseModel as V1BaseModel
+            print("✓ pydantic v1 compatibility available")
+        except ImportError:
+            print("ℹ pydantic v1 compatibility not available (v2 only)")
+            
+    except ImportError as e:
+        print(f"✗ pydantic failed: {e}")
 
 if __name__ == "__main__":
     test_imports()
