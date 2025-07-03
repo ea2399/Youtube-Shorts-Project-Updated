@@ -60,6 +60,12 @@ def test_imports():
             print(f"✓ CUDA device count: {torch.cuda.device_count()}")
     except ImportError as e:
         print(f"✗ torch failed: {e}")
+        
+    try:
+        import scenedetect
+        print("✓ scenedetect imported successfully")
+    except ImportError as e:
+        print(f"✗ scenedetect failed: {e}")
 
 if __name__ == "__main__":
     test_imports()
