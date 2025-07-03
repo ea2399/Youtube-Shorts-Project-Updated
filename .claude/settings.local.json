@@ -18,7 +18,8 @@
       "Bash(touch:*)",
       "mcp__zen__codereview",
       "Bash(npm run type-check:*)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Bash(pip search:*)"
     ],
     "deny": []
   }
