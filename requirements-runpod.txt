@@ -1,8 +1,8 @@
 # YouTube Shorts Editor - Complete RunPod Requirements
 # Phase 1-5 Dependencies: FastAPI + Celery + Redis + PostgreSQL + GPU Rendering + MediaPipe
 
-# Torch CUDA 12.2 compatibility (must be first)
---extra-index-url https://download.pytorch.org/whl/cu122
+# Torch CUDA 11.8 compatibility (most stable)
+--extra-index-url https://download.pytorch.org/whl/cu118
 
 # === WEB FRAMEWORK & API ===
 fastapi==0.104.1
@@ -31,10 +31,10 @@ yt-dlp>=2023.11.16
 pysrt>=1.1.2
 requests>=2.31.0
 
-# === DEEP LEARNING STACK (CUDA 12.2) ===
-torch==2.2.*
-torchaudio==2.2.*
-torchvision==0.17.*
+# === DEEP LEARNING STACK (CUDA 11.8) ===
+torch==2.1.0
+torchaudio==2.1.0
+torchvision==0.16.0
 
 # === COMPUTER VISION & IMAGE PROCESSING ===
 opencv-python==4.11.*

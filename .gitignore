@@ -77,3 +77,4 @@ logs/
 
 # Full path of the problematic history file
 .specstory/history/2025-05-04_17-57Z-whisperx-transcription-workflow-for-clips.md
+.specstory/history

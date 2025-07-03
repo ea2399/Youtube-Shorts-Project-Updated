@@ -1,6 +1,6 @@
 # YouTube Shorts Editor - Complete Phase 1-5 RunPod Deployment
 # Replaces legacy handler with full FastAPI + Celery + Redis + PostgreSQL architecture
-FROM nvidia/cuda:12.2-devel-ubuntu22.04
+FROM nvidia/cuda:11.8-devel-ubuntu22.04
 
 # Prevent timezone prompts during installation
 ENV DEBIAN_FRONTEND=noninteractive
