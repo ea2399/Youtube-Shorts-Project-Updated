@@ -176,40 +176,68 @@ Production deployment includes intelligent auto-scaling:
 
 ---
 
-### **☁️ 6. RUNPOD DEPLOYMENT (GPU Cloud)**
+### **☁️ 6. RUNPOD DEPLOYMENT (GPU Cloud) - UPGRADED SYSTEM**
 
-#### **6.1 RunPod Setup**
+#### **6.1 New RunPod Deployment (Phase 1-5 Complete)**
 ```bash
-# 1. Create RunPod account and get API key
-export RUNPOD_API_KEY="your-runpod-api-key"
+# 1. Create RunPod template with new Dockerfile
+# Use: Dockerfile.runpod (NOT the legacy version)
 
-# 2. Deploy using production configuration
-# Upload docker-compose.production.yml to RunPod
-# Set GPU type: RTX4090 or A100 recommended
+# 2. RunPod Configuration:
+Docker Image Path: Dockerfile.runpod
+Container Start Command: /app/startup.sh
+Expose HTTP Ports: 8000, 5555, 5432, 6379
 
-# 3. Configure environment
-# Set OPENAI_API_KEY in RunPod environment
+# 3. Environment Variables:
+OPENAI_API_KEY=your_openai_api_key_here
+RUNPOD_SERVERLESS=true
+CUDA_VISIBLE_DEVICES=all
 ```
 
-#### **6.2 Test RunPod Endpoint**
+#### **6.2 New API Endpoints Available**
 ```bash
-# Test with script
-./test_endpoint.sh YOUR_ENDPOINT_ID --config payloads/torah_lecture_basic.json
+# Health Check
+curl https://YOUR_ENDPOINT-8000.proxy.runpod.net/health
 
-# Or test directly
-curl -X POST "https://api.runpod.ai/v2/YOUR_ENDPOINT_ID/run" \
-  -H "Authorization: Bearer $RUNPOD_API_KEY" \
+# Process Video (New FastAPI)
+curl -X POST "https://YOUR_ENDPOINT-8000.proxy.runpod.net/process" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "video_url": "https://example.com/video.mp4",
+    "transcript_json": {...},
+    "language": "he",
+    "num_clips": 3,
+    "vertical": true,
+    "use_gpu_rendering": true
+  }'
+
+# Legacy Compatibility
+curl -X POST "https://YOUR_ENDPOINT-8000.proxy.runpod.net/legacy/process" \
   -H "Content-Type: application/json" \
   -d @payloads/torah_lecture_basic.json
+
+# System Metrics
+curl https://YOUR_ENDPOINT-8000.proxy.runpod.net/metrics/system
 ```
 
-#### **6.3 RunPod Configuration**
+#### **6.3 New RunPod Features Available**
+- **✅ FastAPI REST API** (http://your-endpoint:8000/docs)
+- **✅ PostgreSQL Database** (persistent project storage)
+- **✅ Redis Cache & Queue** (high-performance processing)
+- **✅ Celery Task Queue** (background processing)
+- **✅ GPU Monitoring** (real-time metrics)
+- **✅ Health Checks** (automatic service validation)
+- **✅ Flower Dashboard** (http://your-endpoint:5555)
+- **✅ Prometheus Metrics** (advanced monitoring)
+
+#### **6.4 Recommended RunPod Specs (Upgraded)**
 ```yaml
-# Recommended RunPod specs:
-GPU: RTX4090 or A100
-CPU: 16+ cores  
-RAM: 64GB
-Storage: 500GB SSD
+# Enhanced for multi-service architecture:
+GPU: RTX4090 or A100 (40GB+ VRAM recommended)
+CPU: 32+ cores (for multi-service)
+RAM: 128GB (PostgreSQL + Redis + Celery + FastAPI)
+Storage: 1TB SSD (model storage + database)
+Container Disk: 50GB (for services)
 ```
 
 ---

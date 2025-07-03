@@ -1,0 +1,154 @@
+# YouTube Shorts Editor - Complete Phase 1-5 RunPod Deployment
+# Replaces legacy handler with full FastAPI + Celery + Redis + PostgreSQL architecture
+FROM nvidia/cuda:12.2-devel-ubuntu22.04
+
+# Prevent timezone prompts during installation
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=UTC
+
+# System dependencies for complete Phase 1-5 stack
+RUN apt-get update && apt-get install -y \
+    # Python 3.11 and build tools
+    python3.11 \
+    python3.11-venv \
+    python3.11-dev \
+    python3-pip \
+    # PostgreSQL database server
+    postgresql-14 \
+    postgresql-client-14 \
+    postgresql-contrib-14 \
+    # Redis server for caching and message broker
+    redis-server \
+    # Process management
+    supervisor \
+    # FFmpeg with NVENC/NVDEC GPU acceleration support
+    ffmpeg \
+    # Audio processing libraries
+    libsndfile1 \
+    libsndfile1-dev \
+    libasound2-dev \
+    # Image and video processing
+    libopencv-dev \
+    libavcodec-dev \
+    libavformat-dev \
+    libswscale-dev \
+    # System monitoring and utilities
+    htop \
+    curl \
+    wget \
+    git \
+    # Network tools
+    netcat \
+    # Clean up
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Set Python 3.11 as default
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1
+
+# Upgrade pip and install build tools
+RUN python -m pip install --upgrade pip setuptools wheel
+
+# Set working directory
+WORKDIR /app
+
+# Copy requirements first for better Docker layer caching
+COPY requirements-runpod.txt /app/
+
+# Install Python dependencies with CUDA support
+RUN pip install --no-cache-dir \
+    --extra-index-url https://download.pytorch.org/whl/cu122 \
+    -r requirements-runpod.txt
+
+# Create necessary directories
+RUN mkdir -p \
+    /app/storage \
+    /app/models \
+    /app/logs \
+    /app/data \
+    /var/lib/postgresql/14/main \
+    /var/log/supervisor \
+    /tmp/runpod
+
+# Copy PostgreSQL configuration
+COPY docker/postgresql.conf /etc/postgresql/14/main/postgresql.conf
+COPY docker/redis.conf /etc/redis/redis.conf
+
+# Copy supervisord configuration
+COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Copy application code
+COPY core-svc/ /app/core-svc/
+COPY config.py /app/
+COPY utils/ /app/utils/
+COPY extract_shorts.py /app/
+COPY cut_clips.py /app/
+COPY reframe.py /app/
+COPY normalize.py /app/
+COPY pause_based_segmentation.py /app/
+COPY context_aware_prompting.py /app/
+
+# Copy the new RunPod handler (will be created in Phase B)
+COPY runpod_handler.py /app/
+
+# Copy startup script
+COPY docker/startup.sh /app/startup.sh
+RUN chmod +x /app/startup.sh
+
+# Set Python path
+ENV PYTHONPATH=/app
+ENV PYTHONUNBUFFERED=1
+
+# Environment variables for services
+ENV POSTGRES_DB=shorts_editor
+ENV POSTGRES_USER=runpod
+ENV POSTGRES_PASSWORD=runpod_secure_pass
+ENV REDIS_URL=redis://localhost:6379/0
+ENV DATABASE_URL=postgresql://runpod:runpod_secure_pass@localhost:5432/shorts_editor
+
+# GPU and CUDA environment
+ENV NVIDIA_VISIBLE_DEVICES=all
+ENV NVIDIA_DRIVER_CAPABILITIES=compute,video,utility
+ENV CUDA_VISIBLE_DEVICES=all
+
+# RunPod specific environment
+ENV RUNPOD_CONTAINER=true
+ENV CELERY_WORKER_TYPE=gpu
+ENV MAX_CONCURRENT_RENDERS=3
+ENV GPU_MEMORY_LIMIT=8192
+
+# Create MediaPipe models directory and download models
+RUN mkdir -p /models/mediapipe
+# Note: Model downloads will be handled in startup.sh for dynamic loading
+
+# Initialize PostgreSQL (will be properly configured in startup.sh)
+USER postgres
+RUN /usr/lib/postgresql/14/bin/initdb -D /var/lib/postgresql/14/main
+USER root
+
+# Health check script for all services
+COPY docker/health-check.sh /app/health-check.sh
+RUN chmod +x /app/health-check.sh
+
+# Health check to verify all services are running
+HEALTHCHECK --interval=60s --timeout=30s --start-period=180s --retries=3 \
+    CMD /app/health-check.sh || exit 1
+
+# Expose ports
+EXPOSE 8000 5432 6379
+
+# Use startup script as entry point
+ENTRYPOINT ["/app/startup.sh"]
+
+# Default command starts supervisord
+CMD ["supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+
+# Metadata
+LABEL maintainer="YouTube Shorts Editor Team"
+LABEL description="Complete Phase 1-5 YouTube Shorts Editor with FastAPI, Celery, Redis, PostgreSQL, GPU rendering"
+LABEL version="2.0.0"
+LABEL architecture="full-stack"
+LABEL runpod.compatible="true"
+LABEL gpu.required="true"
+LABEL features="fastapi,celery,redis,postgresql,mediapipe,gpu-rendering,monitoring"

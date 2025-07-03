@@ -1,28 +1,105 @@
-# YouTube Shorts Generator - RunPod Requirements
-# Optimized for RunPod PyTorch base image
+# YouTube Shorts Editor - Complete RunPod Requirements
+# Phase 1-5 Dependencies: FastAPI + Celery + Redis + PostgreSQL + GPU Rendering + MediaPipe
 
-# RunPod serverless integration
-runpod>=1.0.0
+# Torch CUDA 12.2 compatibility (must be first)
+--extra-index-url https://download.pytorch.org/whl/cu122
 
-# Core AI/ML libraries
+# === WEB FRAMEWORK & API ===
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
+jinja2==3.1.2
+
+# === DATABASE & ORM ===
+sqlalchemy==2.0.23
+psycopg2-binary==2.9.9
+alembic==1.12.1
+asyncpg==0.29.0
+
+# === TASK QUEUE & CACHING ===
+celery[redis]==5.3.4
+redis==5.0.1
+billiard==4.2.0
+kombu==5.3.4
+
+# === LEGACY PROJECT DEPENDENCIES ===
 openai>=1.3.0
-transformers>=4.30.0
-numpy>=1.24.0
-
-# Audio/Video processing
 ffmpeg-python>=0.2.0
 pydub>=0.25.1
-
-# Utilities
 python-dotenv>=1.0.0
+yt-dlp>=2023.11.16
+pysrt>=1.1.2
 requests>=2.31.0
-pathlib2>=2.3.7
 
-# Data processing
+# === DEEP LEARNING STACK (CUDA 12.2) ===
+torch==2.2.*
+torchaudio==2.2.*
+torchvision==0.17.*
+
+# === COMPUTER VISION & IMAGE PROCESSING ===
+opencv-python==4.11.*
+scikit-image>=0.21.0
+Pillow>=10.0.0
+
+# === MEDIAPIPE TASKS API (Phase 2) ===
+mediapipe==0.10.9
+mediapipe-tasks==0.10.4
+
+# === OBJECT TRACKING & DETECTION ===
+norfair==2.2.*
+ultralytics>=8.0.0
+onnxruntime-gpu==1.17.*
+
+# === AUDIO/VIDEO PROCESSING ===
+py-webrtcvad-wheels==2.0.10
+soundfile>=0.12.1
+spacy==3.8.7
+fasttext>=0.9.2
+pyscenedetect==0.6.*
+
+# === UTILITIES & DATA PROCESSING ===
+pydantic==2.5.0
+pydantic-v1
+httpx==0.25.2
+orjson==3.9.10
+structlog==23.2.0
+python-jose[cryptography]==3.3.0
+aiohttp==3.9.1
+numpy>=1.24.0
 pandas>=2.0.0
 
-# System utilities
-psutil>=5.9.0
+# === PRODUCTION MONITORING (Phase 5) ===
+prometheus-client==0.19.0
+prometheus-fastapi-instrumentator==6.1.0
+pynvml==11.5.0
+psutil==5.9.6
 
-# Note: Base RunPod image includes: pytorch, cuda, python, common ML libraries
-# WhisperX transcription removed - using pre-transcribed JSON input
+# === BACKGROUND TASK MONITORING ===
+flower==2.0.1
+
+# === RUNPOD SERVERLESS ===
+runpod==1.6.2
+
+# === TESTING & DEVELOPMENT ===
+pytest>=7.4.3
+pytest-asyncio>=0.21.1
+
+# === ADDITIONAL PRODUCTION DEPENDENCIES ===
+passlib[bcrypt]==1.7.4
+pydantic-settings==2.1.0
+python-magic==0.4.27
+python-dateutil==2.8.2
+tqdm>=4.66.0
+gunicorn==21.2.0
+GPUtil==1.4.0
+rich==13.7.0
+loguru==0.7.2
+healthcheck==1.3.3
+supervisor-stdout==0.1.1
+jsonschema>=4.19.0
+pathlib2>=2.3.7
+netifaces>=0.11.0
+distro>=1.8.0
+anyio>=4.0.0
+
+# Note: Complete Phase 1-5 implementation with all advanced features
