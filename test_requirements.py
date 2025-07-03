@@ -36,9 +36,15 @@ def test_imports():
     
     try:
         import fastapi
-        print("✓ fastapi imported successfully")
+        print(f"✓ fastapi imported successfully (version: {fastapi.__version__})")
     except ImportError as e:
         print(f"✗ fastapi failed: {e}")
+        
+    try:
+        import anyio
+        print(f"✓ anyio imported successfully (version: {anyio.__version__})")
+    except ImportError as e:
+        print(f"✗ anyio failed: {e}")
         
     try:
         import celery

@@ -95,6 +95,6 @@ jsonschema>=4.19.0
 pathlib2>=2.3.7
 netifaces>=0.11.0
 distro>=1.8.0
-anyio>=4.0.0
+anyio>=3.7.1,<4.0.0
 
 # Note: Complete Phase 1-5 implementation with all advanced features
