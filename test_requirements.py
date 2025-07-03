@@ -86,6 +86,16 @@ def test_imports():
         print(f"✗ scenedetect failed: {e}")
         
     try:
+        import rich
+        print(f"✓ rich imported successfully (version: {rich.__version__})")
+        
+        # Test norfair compatibility
+        import norfair
+        print(f"✓ norfair imported successfully (version: {norfair.__version__})")
+    except ImportError as e:
+        print(f"✗ rich/norfair failed: {e}")
+        
+    try:
         import pydantic
         print(f"✓ pydantic imported successfully (version: {pydantic.__version__})")
         
