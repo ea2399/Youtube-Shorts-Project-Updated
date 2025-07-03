@@ -1,18 +1,14 @@
 # YouTube Shorts Editor - Complete Phase 1-5 RunPod Deployment
 # Replaces legacy handler with full FastAPI + Celery + Redis + PostgreSQL architecture
-FROM nvidia/cuda:11.8-devel-ubuntu22.04
+FROM runpod/pytorch:2.1.0-py3.10-cuda11.8.0-devel-ubuntu22.04
 
 # Prevent timezone prompts during installation
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=UTC
 
 # System dependencies for complete Phase 1-5 stack
+# Note: RunPod base already includes Python 3.10, CUDA, and PyTorch
 RUN apt-get update && apt-get install -y \
-    # Python 3.11 and build tools
-    python3.11 \
-    python3.11-venv \
-    python3.11-dev \
-    python3-pip \
     # PostgreSQL database server
     postgresql-14 \
     postgresql-client-14 \
@@ -42,10 +38,6 @@ RUN apt-get update && apt-get install -y \
     # Clean up
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
-
-# Set Python 3.11 as default
-RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1
 
 # Upgrade pip and install build tools
 RUN python -m pip install --upgrade pip setuptools wheel
@@ -122,10 +114,7 @@ ENV GPU_MEMORY_LIMIT=8192
 RUN mkdir -p /models/mediapipe
 # Note: Model downloads will be handled in startup.sh for dynamic loading
 
-# Initialize PostgreSQL (will be properly configured in startup.sh)
-USER postgres
-RUN /usr/lib/postgresql/14/bin/initdb -D /var/lib/postgresql/14/main
-USER root
+# PostgreSQL will be initialized in startup.sh for RunPod compatibility
 
 # Health check script for all services
 COPY docker/health-check.sh /app/health-check.sh
