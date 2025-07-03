@@ -48,9 +48,21 @@ def test_imports():
         
     try:
         import celery
-        print("✓ celery imported successfully")
+        print(f"✓ celery imported successfully (version: {celery.__version__})")
     except ImportError as e:
         print(f"✗ celery failed: {e}")
+        
+    try:
+        import redis
+        print(f"✓ redis imported successfully (version: {redis.__version__})")
+        
+        # Test redis connection capability
+        client = redis.Redis(host='localhost', port=6379, decode_responses=True, socket_connect_timeout=1)
+        print("✓ redis client created successfully")
+    except ImportError as e:
+        print(f"✗ redis failed: {e}")
+    except Exception as e:
+        print(f"ℹ redis import ok, connection test failed (expected): {e}")
         
     try:
         import cv2
