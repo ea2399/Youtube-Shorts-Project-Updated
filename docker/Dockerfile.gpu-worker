@@ -1,0 +1,94 @@
+# GPU-Optimized Worker Dockerfile - Phase 5B
+# NVIDIA CUDA base with FFmpeg hardware acceleration
+FROM nvidia/cuda:12.2-devel-ubuntu22.04
+
+# Prevent timezone prompts during installation
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=UTC
+
+# System dependencies for GPU processing
+RUN apt-get update && apt-get install -y \
+    # Python 3.11 and build tools
+    python3.11 \
+    python3.11-venv \
+    python3.11-dev \
+    python3-pip \
+    # FFmpeg with NVENC/NVDEC support
+    ffmpeg \
+    # Audio processing libraries
+    libsndfile1 \
+    libsndfile1-dev \
+    # Image processing libraries
+    libopencv-dev \
+    # System monitoring tools
+    htop \
+    nvidia-utils-535 \
+    # Network tools for health checks
+    curl \
+    # Clean up
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Set Python 3.11 as default
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1
+
+# Upgrade pip
+RUN python -m pip install --upgrade pip setuptools wheel
+
+# Set working directory
+WORKDIR /app
+
+# Copy requirements first for better Docker layer caching
+COPY core-svc/requirements.txt /app/
+
+# Install Python dependencies with CUDA support
+RUN pip install --no-cache-dir \
+    --extra-index-url https://download.pytorch.org/whl/cu122 \
+    -r requirements.txt
+
+# Create necessary directories
+RUN mkdir -p /app/storage /app/models /app/logs
+
+# Copy MediaPipe models (placeholder - models should be downloaded in production)
+RUN mkdir -p /models/mediapipe
+# TODO: Download actual MediaPipe models in production
+# RUN wget -O /models/mediapipe/face_detector.tflite [URL]
+# RUN wget -O /models/mediapipe/face_landmarker.task [URL]
+
+# Copy application code
+COPY core-svc/ /app/core-svc/
+COPY config.py /app/
+COPY utils/ /app/utils/
+
+# Set Python path
+ENV PYTHONPATH=/app
+
+# Environment variables for GPU worker
+ENV NVIDIA_VISIBLE_DEVICES=all
+ENV NVIDIA_DRIVER_CAPABILITIES=compute,video,utility
+ENV CUDA_VISIBLE_DEVICES=all
+
+# Worker-specific environment
+ENV CELERY_WORKER_TYPE=gpu
+ENV MAX_CONCURRENT_RENDERS=3
+ENV GPU_MEMORY_LIMIT=8192
+
+# Health check script
+COPY docker/scripts/gpu-worker-health.sh /app/health-check.sh
+RUN chmod +x /app/health-check.sh
+
+# Default command for GPU worker
+CMD ["celery", "-A", "core.tasks.celery_app", "worker", \
+     "--loglevel=info", \
+     "--concurrency=1", \
+     "--queues=gpu_render", \
+     "--hostname=gpu-worker@%h", \
+     "--max-tasks-per-child=10"]
+
+# Health check
+HEALTHCHECK --interval=60s --timeout=10s --start-period=120s --retries=3 \
+    CMD /app/health-check.sh || exit 1
+
+# Expose monitoring port
+EXPOSE 9999

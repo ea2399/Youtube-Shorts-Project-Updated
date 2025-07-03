@@ -1,0 +1,16 @@
+# Development Dependencies - Phase 1
+# Testing, formatting, and development tools
+
+# Testing
+pytest==7.4.3
+pytest-asyncio==0.21.1
+pytest-cov==4.1.0
+
+# Code Quality
+black==23.11.0
+flake8==6.1.0
+mypy==1.7.1
+
+# Development utilities
+pre-commit==3.5.0
+ipython==8.17.2

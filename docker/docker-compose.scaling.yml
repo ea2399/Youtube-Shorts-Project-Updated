@@ -1,0 +1,86 @@
+# Auto-scaling Docker Compose Configuration - Phase 5D
+# Separate compose file for auto-scaling service deployment
+
+version: '3.8'
+
+services:
+  # Auto-scaling Controller Service
+  auto-scaler:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.auto-scaler
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/shorts_editor
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - SCALING_INTERVAL=30
+      - LOG_LEVEL=info
+      - SERVICE_NAME=youtube-short-project_gpu-worker
+      # Scaling thresholds
+      - SCALE_UP_QUEUE_THRESHOLD=10
+      - SCALE_DOWN_QUEUE_THRESHOLD=3
+      - SCALE_UP_WAIT_TIME_THRESHOLD=300
+      - MAX_REPLICAS=8
+      - MIN_REPLICAS=1
+      # GPU health thresholds
+      - MAX_GPU_TEMPERATURE=80
+      - MAX_GPU_MEMORY_USAGE=90
+      # Cooldown periods
+      - SCALE_UP_COOLDOWN=300
+      - SCALE_DOWN_COOLDOWN=600
+    depends_on:
+      - redis
+      - core-api
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - scaling_logs:/app/logs
+    networks:
+      - app-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8001/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Scaling Metrics Exporter (for Prometheus)
+  scaling-exporter:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.scaling-exporter
+    ports:
+      - "9998:9998"
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - METRICS_PORT=9998
+      - EXPORT_INTERVAL=15
+    depends_on:
+      - redis
+      - auto-scaler
+    networks:
+      - app-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+
+# Additional volumes for scaling services
+volumes:
+  scaling_logs:
+    driver: local
+
+# Use existing network from main compose
+networks:
+  app-network:
+    external: true
+    name: youtube-short-project_app-network

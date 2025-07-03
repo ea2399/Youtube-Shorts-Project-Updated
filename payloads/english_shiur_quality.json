@@ -1,0 +1,12 @@
+{
+  "input": {
+    "video_url": "https://example.com/english-shiur.mp4",
+    "language": "en",
+    "num_clips": 5,
+    "min_duration": 25,
+    "max_duration": 45,
+    "vertical": true,
+    "subtitles": true,
+    "model_size": "medium"
+  }
+}

@@ -1,0 +1,92 @@
+# Prometheus Configuration - Phase 5C
+# Monitoring configuration for GPU rendering infrastructure
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  - "gpu_alerts.yml"
+  - "app_alerts.yml"
+
+scrape_configs:
+  # FastAPI Application Metrics
+  - job_name: 'core-api'
+    static_configs:
+      - targets: ['core-api:8000']
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+    scrape_timeout: 5s
+
+  # GPU Worker Metrics  
+  - job_name: 'gpu-workers'
+    static_configs:
+      - targets: ['gpu-worker:9999']
+    metrics_path: '/metrics'
+    scrape_interval: 5s  # More frequent for GPU monitoring
+    scrape_timeout: 3s
+
+  # NVIDIA GPU Hardware Metrics
+  - job_name: 'gpu-hardware'
+    static_configs:
+      - targets: ['nvidia-gpu-exporter:9445']
+    scrape_interval: 5s
+    scrape_timeout: 3s
+
+  # Redis Metrics
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis:6379']
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+
+  # PostgreSQL Metrics
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres:9187']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+
+  # Celery Worker Metrics
+  - job_name: 'celery-workers'
+    static_configs:
+      - targets: ['celery-worker:9540']
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+
+  # Flower Celery Monitoring
+  - job_name: 'flower'
+    static_configs:
+      - targets: ['flower:5555']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+
+  # Frontend Application
+  - job_name: 'studio-ui'
+    static_configs:
+      - targets: ['studio-ui:3000']
+    metrics_path: '/api/metrics'
+    scrape_interval: 30s
+
+  # System Metrics (Node Exporter would be added in production)
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+    scrape_interval: 15s
+
+# Alerting configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+# Storage configuration
+storage:
+  tsdb:
+    retention.time: 15d
+    retention.size: 10GB
+
+# Remote write for long-term storage (optional)
+# remote_write:
+#   - url: "https://your-remote-storage/api/v1/write"

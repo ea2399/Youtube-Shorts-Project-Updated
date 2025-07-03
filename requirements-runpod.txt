@@ -1,0 +1,28 @@
+# YouTube Shorts Generator - RunPod Requirements
+# Optimized for RunPod PyTorch base image
+
+# RunPod serverless integration
+runpod>=1.0.0
+
+# Core AI/ML libraries
+openai>=1.3.0
+transformers>=4.30.0
+numpy>=1.24.0
+
+# Audio/Video processing
+ffmpeg-python>=0.2.0
+pydub>=0.25.1
+
+# Utilities
+python-dotenv>=1.0.0
+requests>=2.31.0
+pathlib2>=2.3.7
+
+# Data processing
+pandas>=2.0.0
+
+# System utilities
+psutil>=5.9.0
+
+# Note: Base RunPod image includes: pytorch, cuda, python, common ML libraries
+# WhisperX transcription removed - using pre-transcribed JSON input

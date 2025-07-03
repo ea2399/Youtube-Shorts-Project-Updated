@@ -1,0 +1,12 @@
+{
+  "input": {
+    "video_url": "https://tiynbxfoapakpwpgbhyj.supabase.co/storage/v1/object/sign/media-assets/videos/1750683211057-xtdr8.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8zNmZlZDk5Ny02MzhiLTQ0NTUtYTE2NC1jNDllOTAzYWQwNDIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJtZWRpYS1hc3NldHMvdmlkZW9zLzE3NTA2ODMyMTEwNTcteHRkcjgubXA0IiwiaWF0IjoxNzUwNjgzMjU1LCJleHAiOjE3NTEyODgwNTV9.vX5BERZc_dPw-eTS8ea6Xm8c3aC08pe-36gMrAtnMFk",
+    "language": "en",
+    "num_clips": 2,
+    "min_duration": 20,
+    "max_duration": 45,
+    "vertical": true,
+    "subtitles": true,
+    "model_size": "tiny"
+  }
+}

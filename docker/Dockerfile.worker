@@ -1,0 +1,24 @@
+# Celery Worker Service - Phase 1
+FROM base-image
+
+# Copy worker-specific files
+COPY core-svc/tasks/ ./core-svc/tasks/
+COPY core-svc/services/ ./core-svc/services/
+
+# Health check for Celery worker
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD python3 -c "from core_svc.tasks.celery_app import celery_app; celery_app.control.inspect().ping()" || exit 1
+
+# Worker startup script with GPU check
+RUN echo '#!/bin/bash\n\
+echo "=== Celery Worker Startup ==="\n\
+check-gpu\n\
+echo "Starting Celery worker with concurrency=1"\n\
+exec python3 -m celery -A core_svc.tasks.celery_app worker \\\n\
+  --loglevel=info \\\n\
+  --concurrency=1 \\\n\
+  --max-tasks-per-child=1 \\\n\
+  --queues=video_processing,health' > /app/start-worker.sh && chmod +x /app/start-worker.sh
+
+# Run Celery worker
+CMD ["/app/start-worker.sh"]

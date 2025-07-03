@@ -1,0 +1,14 @@
+# Grafana Dashboard Provisioning - Phase 5C
+# Automatic dashboard loading configuration
+
+apiVersion: 1
+
+providers:
+  - name: 'GPU Monitoring Dashboards'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards
+      foldersFromFilesStructure: true

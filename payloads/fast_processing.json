@@ -1,0 +1,12 @@
+{
+  "input": {
+    "video_url": "https://example.com/short-lecture.mp4",
+    "language": "en",
+    "num_clips": 2,
+    "min_duration": 15,
+    "max_duration": 30,
+    "vertical": false,
+    "subtitles": false,
+    "model_size": "tiny"
+  }
+}

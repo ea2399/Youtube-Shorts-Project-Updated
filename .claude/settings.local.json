@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__zen__analyze",
+      "Bash(find:*)",
+      "mcp__zen__debug",
+      "Bash(python3:*)",
+      "Bash(grep:*)",
+      "Bash(cat:*)",
+      "WebFetch(domain:docs.runpod.io)",
+      "mcp__zen__chat",
+      "mcp__zen__planner",
+      "mcp__zen__consensus",
+      "mcp__zen__listmodels",
+      "mcp__zen__thinkdeep",
+      "Bash(mkdir:*)",
+      "Bash(mv:*)",
+      "Bash(touch:*)",
+      "mcp__zen__codereview",
+      "Bash(npm run type-check:*)",
+      "Bash(chmod:*)"
+    ],
+    "deny": []
+  }
+}

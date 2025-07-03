@@ -1,0 +1,347 @@
+/**
+ * Global Styles - Phase 4
+ * Tailwind CSS base styles and custom editor styling
+ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* CSS Variables for dynamic theming */
+:root {
+  --timeline-height: 120px;
+  --player-controls-height: 60px;
+  --sidebar-width: 320px;
+  --header-height: 64px;
+  
+  /* Custom properties for video editor */
+  --playhead-color: #ef4444;
+  --selection-color: rgba(59, 130, 246, 0.3);
+  --waveform-color: #6366f1;
+  --clip-border-radius: 4px;
+  
+  /* Animation easing */
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+/* Reset and base styles */
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    font-feature-settings: "rlig" 1, "calt" 1;
+    overflow-x: hidden;
+  }
+  
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-editor-surface;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-editor-border rounded-md;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-editor-text-muted;
+  }
+  
+  /* Firefox scrollbar */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: theme('colors.editor.border') theme('colors.editor.surface');
+  }
+}
+
+/* Component layer for reusable patterns */
+@layer components {
+  /* Timeline specific styles */
+  .timeline-container {
+    position: relative;
+    height: var(--timeline-height);
+    background: theme('colors.timeline.bg');
+    border: 1px solid theme('colors.editor.border');
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  .timeline-track {
+    position: relative;
+    height: 40px;
+    border-bottom: 1px solid theme('colors.editor.border');
+    background: theme('colors.timeline.track');
+  }
+  
+  .timeline-clip {
+    position: absolute;
+    height: 36px;
+    margin: 2px 0;
+    background: theme('colors.timeline.clip');
+    border: 2px solid transparent;
+    border-radius: var(--clip-border-radius);
+    cursor: pointer;
+    transition: all 0.15s var(--ease-out-quart);
+    user-select: none;
+  }
+  
+  .timeline-clip:hover {
+    @apply border-timeline-clipSelected;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .timeline-clip.selected {
+    @apply bg-timeline-clipSelected border-timeline-clipSelected;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+  }
+  
+  .timeline-playhead {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--playhead-color);
+    z-index: theme('zIndex.playhead');
+    pointer-events: none;
+  }
+  
+  .timeline-playhead::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: -6px;
+    width: 14px;
+    height: 14px;
+    background: var(--playhead-color);
+    border-radius: 50%;
+    border: 2px solid theme('colors.editor.bg');
+  }
+  
+  /* Video player styles */
+  .video-player-container {
+    position: relative;
+    background: black;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  .video-player-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: theme('zIndex.player');
+  }
+  
+  /* Waveform visualization */
+  .waveform-canvas {
+    width: 100%;
+    height: 60px;
+    background: theme('colors.editor.surface');
+    border-radius: 4px;
+  }
+  
+  /* Quality indicators */
+  .quality-indicator {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 4px;
+  }
+  
+  .quality-excellent {
+    @apply bg-quality-excellent;
+  }
+  
+  .quality-good {
+    @apply bg-quality-good;
+  }
+  
+  .quality-fair {
+    @apply bg-quality-fair;
+  }
+  
+  .quality-poor {
+    @apply bg-quality-poor;
+  }
+  
+  /* Button variants */
+  .btn {
+    @apply inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2;
+  }
+  
+  .btn-primary {
+    @apply bg-editor-accent text-white hover:bg-blue-600 focus:ring-blue-500;
+  }
+  
+  .btn-secondary {
+    @apply bg-editor-surface text-editor-text-primary border border-editor-border hover:bg-editor-border focus:ring-editor-accent;
+  }
+  
+  .btn-ghost {
+    @apply text-editor-text-secondary hover:bg-editor-surface hover:text-editor-text-primary focus:ring-editor-accent;
+  }
+  
+  /* Form elements */
+  .form-input {
+    @apply block w-full px-3 py-2 text-sm bg-editor-surface border border-editor-border rounded-md focus:ring-2 focus:ring-editor-accent focus:border-transparent;
+  }
+  
+  .form-label {
+    @apply block text-sm font-medium text-editor-text-primary mb-1;
+  }
+  
+  /* Loading states */
+  .loading-spinner {
+    @apply animate-spin w-4 h-4 border-2 border-current border-t-transparent rounded-full;
+  }
+  
+  /* Collaboration indicators */
+  .user-cursor {
+    position: absolute;
+    width: 2px;
+    height: 20px;
+    border-radius: 1px;
+    z-index: 50;
+    transition: all 0.1s ease-out;
+  }
+  
+  .user-cursor::after {
+    content: attr(data-username);
+    position: absolute;
+    top: -24px;
+    left: -4px;
+    padding: 2px 6px;
+    font-size: 10px;
+    color: white;
+    background: inherit;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+}
+
+/* Utility layer for custom utilities */
+@layer utilities {
+  /* Animation utilities */
+  .animate-fade-in {
+    animation: fadeIn 0.2s ease-out;
+  }
+  
+  .animate-slide-up {
+    animation: slideUp 0.3s var(--ease-out-quart);
+  }
+  
+  .animate-slide-down {
+    animation: slideDown 0.3s var(--ease-out-quart);
+  }
+  
+  /* Text utilities */
+  .text-truncate {
+    @apply overflow-hidden text-ellipsis whitespace-nowrap;
+  }
+  
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  /* Layout utilities */
+  .safe-area-inset-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  .safe-area-inset-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  /* Performance utilities */
+  .gpu-accelerated {
+    transform: translateZ(0);
+    will-change: transform;
+  }
+  
+  .prevent-select {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+  }
+}
+
+/* Keyframe animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Media queries for responsive design */
+@media (max-width: 768px) {
+  :root {
+    --sidebar-width: 280px;
+    --timeline-height: 100px;
+  }
+  
+  .timeline-clip {
+    height: 32px;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .timeline-clip {
+    border-width: 3px;
+  }
+  
+  .timeline-playhead {
+    width: 3px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

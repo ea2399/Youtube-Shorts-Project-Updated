@@ -1,0 +1,76 @@
+# YouTube Shorts Generator - Git Ignore File
+
+# Environment and secrets
+.env
+.env.local
+.env.production
+*.key
+*.pem
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Generated outputs (keep examples but ignore generated files)
+25-05-04*/
+temp/
+outputs/
+test_outputs/
+runpod_response_*.json
+
+# Large media files (not needed in repo)
+*.mp4
+*.mkv
+*.avi
+*.mov
+*.wav
+*.mp3
+
+# Generated test files
+test_from_srt.json
+test_realistic_transcript.json
+
+# Model files (downloaded at runtime)
+models/
+*.pt
+*.bin
+
+# Logs
+*.log
+logs/
+
+# Docker build context
+.dockerignore

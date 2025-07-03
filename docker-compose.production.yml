@@ -1,0 +1,389 @@
+# Production Docker Compose - Phase 5B
+# Multi-service configuration with GPU allocation and monitoring
+version: '3.8'
+
+services:
+  # API Gateway & Core Service
+  core-api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/shorts_editor
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - ENVIRONMENT=production
+      - LOG_LEVEL=info
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GPU_ENABLED=true
+      - MAX_CONCURRENT_RENDERS=3
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - video_storage:/app/storage
+      - model_cache:/app/models
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+        reservations:
+          memory: 2G
+
+  # GPU Rendering Workers  
+  gpu-worker:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.gpu-worker
+    environment:
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/shorts_editor
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - ENVIRONMENT=production
+      - LOG_LEVEL=info
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,video,utility
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - video_storage:/app/storage
+      - model_cache:/app/models
+      - /tmp:/tmp
+    networks:
+      - app-network
+    restart: unless-stopped
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          memory: 8G
+        reservations:
+          memory: 4G
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import pynvml; pynvml.nvmlInit()"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+
+  # Background Task Workers (CPU-only)
+  celery-worker:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.worker
+    command: celery -A core.tasks.celery_app worker --loglevel=info --concurrency=4 --queues=default,intelligence
+    environment:
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/shorts_editor
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - ENVIRONMENT=production
+      - LOG_LEVEL=info
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - video_storage:/app/storage
+      - model_cache:/app/models
+    networks:
+      - app-network
+    restart: unless-stopped
+    deploy:
+      replicas: 3
+      resources:
+        limits:
+          memory: 4G
+        reservations:
+          memory: 2G
+    healthcheck:
+      test: ["CMD", "celery", "-A", "core.tasks.celery_app", "inspect", "ping"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+
+  # Celery Beat Scheduler
+  celery-beat:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.worker
+    command: celery -A core.tasks.celery_app beat --loglevel=info
+    environment:
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/shorts_editor
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - ENVIRONMENT=production
+      - LOG_LEVEL=info
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - celery_beat_data:/app/celerybeat-schedule
+    networks:
+      - app-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+  # Task Queue Monitoring (Flower)
+  flower:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.worker
+    command: celery -A core.tasks.celery_app flower --port=5555
+    ports:
+      - "5555:5555"
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - FLOWER_BASIC_AUTH=${FLOWER_USER}:${FLOWER_PASSWORD}
+    depends_on:
+      - redis
+    networks:
+      - app-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+  # Frontend Application
+  studio-ui:
+    build:
+      context: ./studio-ui
+      dockerfile: Dockerfile
+      args:
+        - NODE_ENV=production
+        - NEXT_PUBLIC_API_URL=http://core-api:8000
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://core-api:8000
+      - NEXT_PUBLIC_WS_URL=ws://core-api:8000
+    depends_on:
+      - core-api
+    networks:
+      - app-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Database
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_DB=shorts_editor
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_INITDB_ARGS=--encoding=UTF-8 --lc-collate=C --lc-ctype=C
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - app-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+        reservations:
+          memory: 1G
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache & Message Broker
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes --maxmemory 1gb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    networks:
+      - app-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1.5G
+        reservations:
+          memory: 1G
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Prometheus Metrics Collection
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=15d'
+      - '--web.enable-lifecycle'
+    networks:
+      - app-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
+
+  # Grafana Monitoring Dashboard
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning
+      - ./docker/grafana/dashboards:/var/lib/grafana/dashboards
+    depends_on:
+      - prometheus
+    networks:
+      - app-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+  # NVIDIA GPU Metrics Exporter
+  nvidia-gpu-exporter:
+    image: mindprince/nvidia_gpu_prometheus_exporter:0.1
+    ports:
+      - "9445:9445"
+    volumes:
+      - /usr/lib/nvidia-384:/usr/lib/nvidia-384
+      - /usr/bin/nvidia-smi:/usr/bin/nvidia-smi
+    networks:
+      - app-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  # Load Balancer (for multi-instance deployments)
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./docker/nginx/ssl:/etc/nginx/ssl
+      - nginx_logs:/var/log/nginx
+    depends_on:
+      - core-api
+      - studio-ui
+    networks:
+      - app-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+
+# Networks
+networks:
+  app-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+# Volumes
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  video_storage:
+    driver: local
+  model_cache:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+  celery_beat_data:
+    driver: local
+  nginx_logs:
+    driver: local
+
+# Configuration for RunPod deployment
+x-runpod-config:
+  gpu_count: 2
+  gpu_type: "RTX4090"
+  cpu_count: 16
+  memory_gb: 64
+  storage_gb: 500
+  docker_compose_override:
+    services:
+      gpu-worker:
+        deploy:
+          replicas: 4  # Scale based on GPU availability
+      celery-worker:
+        deploy:
+          replicas: 6  # Scale based on CPU cores

@@ -1,0 +1,29 @@
+# Grafana Datasource Configuration - Phase 5C
+# Prometheus data source for GPU monitoring metrics
+
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: true
+    basicAuth: false
+    jsonData:
+      timeInterval: 5s
+      queryTimeout: 60s
+      httpMethod: POST
+      manageAlerts: true
+      alertmanagerUid: alertmanager
+      prometheusType: Prometheus
+      prometheusVersion: 2.40.0
+      cacheLevel: High
+      incrementalQuery: true
+      incrementalQueryOverlapWindow: 10m
+      disableRecordingRules: false
+      customQueryParameters: ""
+      exemplarTraceIdDestinations:
+        - name: trace_id
+          datasourceUid: jaeger

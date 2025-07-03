@@ -1,0 +1,83 @@
+{
+  "input": {
+    "video_url": "https://tiynbxfoapakpwpgbhyj.supabase.co/storage/v1/object/sign/media-assets/videos/1750683211057-xtdr8.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8zNmZlZDk5Ny02MzhiLTQ0NTUtYTE2NC1jNDllOTAzYWQwNDIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJtZWRpYS1hc3NldHMvdmlkZW9zLzE3NTA2ODMyMTEwNTcteHRkcjgubXA0IiwiaWF0IjoxNzUwNjgzMjU1LCJleHAiOjE3NTEyODgwNTV9.vX5BERZc_dPw-eTS8ea6Xm8c3aC08pe-36gMrAtnMFk",
+    "transcript_json": {
+      "segments": [
+        {
+          "start": 0.0,
+          "end": 12.5,
+          "text": "ברוכים הבאים לשיעור תורה היום. אנו נתחיל עם נושא חשוב מאוד",
+          "words": [
+            {"word": "ברוכים", "start": 0.0, "end": 1.2},
+            {"word": "הבאים", "start": 1.3, "end": 2.1},
+            {"word": "לשיעור", "start": 2.5, "end": 3.4},
+            {"word": "תורה", "start": 3.8, "end": 4.5},
+            {"word": "היום", "start": 5.0, "end": 5.8},
+            {"word": "אנו", "start": 6.2, "end": 6.8},
+            {"word": "נתחיל", "start": 7.0, "end": 7.6},
+            {"word": "עם", "start": 8.0, "end": 8.3},
+            {"word": "נושא", "start": 8.5, "end": 9.1},
+            {"word": "חשוב", "start": 9.3, "end": 9.8},
+            {"word": "מאוד", "start": 10.0, "end": 10.5}
+          ]
+        },
+        {
+          "start": 13.0,
+          "end": 28.2,
+          "text": "התפילה היא הדרך שבה אנו מתקשרים עם הבורא. זה לא רק דיבור, אלא חיבור של הנשמה",
+          "words": [
+            {"word": "התפילה", "start": 13.0, "end": 14.2},
+            {"word": "היא", "start": 14.5, "end": 14.8},
+            {"word": "הדרך", "start": 15.0, "end": 15.6},
+            {"word": "שבה", "start": 15.8, "end": 16.2},
+            {"word": "אנו", "start": 16.5, "end": 17.0},
+            {"word": "מתקשרים", "start": 17.2, "end": 18.1},
+            {"word": "עם", "start": 18.3, "end": 18.6},
+            {"word": "הבורא", "start": 18.8, "end": 19.5},
+            {"word": "זה", "start": 20.0, "end": 20.3},
+            {"word": "לא", "start": 20.5, "end": 20.7},
+            {"word": "רק", "start": 20.9, "end": 21.2},
+            {"word": "דיבור", "start": 21.4, "end": 22.1},
+            {"word": "אלא", "start": 22.5, "end": 23.0},
+            {"word": "חיבור", "start": 23.3, "end": 23.9},
+            {"word": "של", "start": 24.1, "end": 24.3},
+            {"word": "הנשמה", "start": 24.5, "end": 25.2}
+          ]
+        },
+        {
+          "start": 29.0,
+          "end": 45.8,
+          "text": "כשאנו מתפללים באמת, אנו פותחים את הלב שלנו ומזמינים את האור האלוהי להיכנס פנימה. זוהי החוויה הרוחנית העמוקה ביותר",
+          "words": [
+            {"word": "כשאנו", "start": 29.0, "end": 29.8},
+            {"word": "מתפללים", "start": 30.0, "end": 30.9},
+            {"word": "באמת", "start": 31.2, "end": 31.8},
+            {"word": "אנו", "start": 32.1, "end": 32.5},
+            {"word": "פותחים", "start": 32.8, "end": 33.6},
+            {"word": "את", "start": 33.8, "end": 34.0},
+            {"word": "הלב", "start": 34.2, "end": 34.7},
+            {"word": "שלנו", "start": 34.9, "end": 35.4},
+            {"word": "ומזמינים", "start": 35.7, "end": 36.6},
+            {"word": "את", "start": 36.8, "end": 37.0},
+            {"word": "האור", "start": 37.2, "end": 37.7},
+            {"word": "האלוהי", "start": 37.9, "end": 38.7},
+            {"word": "להיכנס", "start": 39.0, "end": 39.7},
+            {"word": "פנימה", "start": 40.0, "end": 40.7},
+            {"word": "זוהי", "start": 41.2, "end": 41.7},
+            {"word": "החוויה", "start": 42.0, "end": 42.7},
+            {"word": "הרוחנית", "start": 43.0, "end": 43.8},
+            {"word": "העמוקה", "start": 44.0, "end": 44.6},
+            {"word": "ביותר", "start": 44.8, "end": 45.4}
+          ]
+        }
+      ],
+      "language": "he"
+    },
+    "language": "he",
+    "num_clips": 2,
+    "min_duration": 20,
+    "max_duration": 35,
+    "vertical": true,
+    "subtitles": true
+  }
+}

@@ -1,0 +1,12 @@
+# FastAPI Service - Phase 1
+FROM base-image
+
+# Copy any API-specific files
+COPY core-svc/api/ ./core-svc/api/
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:8000/health || exit 1
+
+# Run FastAPI with uvicorn
+CMD ["python3", "-m", "uvicorn", "core_svc.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]

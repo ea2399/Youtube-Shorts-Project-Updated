@@ -1,0 +1,31 @@
+﻿{
+    "output":  {
+                   "analysis":  {
+                                    "method":  "context_aware_multi_pass",
+                                    "overall_topic":  "Torah teachings and wisdom",
+                                    "themes":  [
+                                                   "Torah wisdom",
+                                                   "spiritual growth"
+                                               ],
+                                    "total_clips_analyzed":  1
+                                },
+                   "clips":  [
+
+                             ],
+                   "clips_generated":  0,
+                   "files":  [
+
+                             ],
+                   "processing_info":  {
+                                           "language":  "he",
+                                           "subtitles_created":  true,
+                                           "vertical_created":  true,
+                                           "video_url":  "https://tiynbxfoapakpwpgbhyj.supabase.co/storage/v1/object/sign/media-assets/videos/1751026646251-125r3d.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8zNmZlZDk5Ny02MzhiLTQ0NTUtYTE2NC1jNDllOTAzYWQwNDIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJtZWRpYS1hc3NldHMvdmlkZW9zLzE3NTEwMjY2NDYyNTEtMTI1cjNkLm1wNCIsImlhdCI6MTc1MTAyNjgzMiwiZXhwIjoxNzUxNjMxNjMyfQ.2cqfL8QwnpxMiagB5TndsiCw_d8jyeu5aREkyqN4D0s"
+                                       },
+                   "success":  true,
+                   "transcription":  {
+                                         "language":  "en",
+                                         "segments":  8
+                                     }
+               }
+}

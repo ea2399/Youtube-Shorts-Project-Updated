@@ -1,0 +1,73 @@
+# Base Image for YouTube Shorts Editor - Phase 1
+# Shared base with ffmpeg + ML dependencies + GPU support
+
+FROM nvidia/cuda:12.2.0-runtime-ubuntu22.04
+
+# Set non-interactive frontend for apt
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    ffmpeg \
+    git \
+    wget \
+    curl \
+    python3.11 \
+    python3.11-venv \
+    python3.11-dev \
+    python3-pip \
+    postgresql-client \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create python symlink
+RUN ln -s /usr/bin/python3.11 /usr/bin/python3 && \
+    ln -s /usr/bin/python3.11 /usr/bin/python
+
+# Create app user for security
+RUN useradd -r -s /bin/false -m -d /app appuser
+
+# Set working directory
+WORKDIR /app
+
+# Copy requirements first for better Docker layer caching
+COPY core-svc/requirements.txt ./requirements.txt
+
+# Upgrade pip and install dependencies
+RUN python3 -m pip install --no-cache-dir --upgrade pip && \
+    python3 -m pip install --no-cache-dir -r requirements.txt
+
+# Create data directory with proper permissions
+RUN mkdir -p /data && chown appuser:appuser /data
+
+# Set environment variables
+ENV PYTHONPATH=/app
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+
+# GPU runtime self-test function
+RUN echo '#!/bin/bash\n\
+if nvidia-smi --query-gpu=name --format=csv,noheader >/dev/null 2>&1; then\n\
+  echo "✓ GPU accessible: $(nvidia-smi --query-gpu=name --format=csv,noheader | head -1)"\n\
+else\n\
+  echo "⚠️  No GPU found - running in CPU mode"\n\
+fi' > /usr/local/bin/check-gpu && chmod +x /usr/local/bin/check-gpu
+
+# Health check dependencies
+RUN python3 -c "import torch, torchaudio, cv2, mediapipe; print('✓ All ML dependencies imported successfully')"
+
+# Copy application code
+COPY core-svc/ ./core-svc/
+COPY extract_shorts.py cut_clips.py reframe.py config.py ./
+COPY utils/ ./utils/
+
+# Set ownership
+RUN chown -R appuser:appuser /app
+
+# Switch to non-root user
+USER appuser
+
+# Expose port
+EXPOSE 8000
+
+# Volume for data storage
+VOLUME ["/data"]

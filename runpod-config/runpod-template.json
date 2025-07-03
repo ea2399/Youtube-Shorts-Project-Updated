@@ -1,0 +1,60 @@
+{
+  "name": "YouTube Shorts Editor - Production",
+  "description": "GPU-accelerated video editing platform with auto-scaling",
+  "version": "5.0.0",
+  "dockerArgs": "",
+  "containerDiskInGb": 100,
+  "volumeInGb": 500,
+  "volumeMountPath": "/workspace",
+  "ports": "8000/http,3000/http,5555/http,9090/http,3001/http",
+  "env": [
+    {
+      "key": "POSTGRES_PASSWORD",
+      "value": "",
+      "isSecret": true
+    },
+    {
+      "key": "OPENAI_API_KEY", 
+      "value": "",
+      "isSecret": true
+    },
+    {
+      "key": "GRAFANA_PASSWORD",
+      "value": "",
+      "isSecret": true
+    },
+    {
+      "key": "FLOWER_USER",
+      "value": "admin"
+    },
+    {
+      "key": "FLOWER_PASSWORD",
+      "value": "",
+      "isSecret": true
+    },
+    {
+      "key": "ENVIRONMENT",
+      "value": "production"
+    },
+    {
+      "key": "LOG_LEVEL",
+      "value": "info"
+    },
+    {
+      "key": "MAX_CONCURRENT_RENDERS",
+      "value": "3"
+    },
+    {
+      "key": "GPU_MEMORY_LIMIT",
+      "value": "8192"
+    },
+    {
+      "key": "CUDA_VISIBLE_DEVICES",
+      "value": "all"
+    }
+  ],
+  "startScript": "/workspace/runpod-config/start.sh",
+  "imageName": "shorts-editor:production",
+  "containerRegistryAuthId": null,
+  "readme": "# YouTube Shorts Editor - Production Deployment\n\nGPU-accelerated video editing platform optimized for RunPod.\n\n## Features\n- NVENC/NVDEC hardware acceleration\n- MediaPipe face tracking and reframing\n- Auto-scaling based on queue depth\n- Real-time collaboration\n- Comprehensive monitoring\n\n## Ports\n- 8000: Core API\n- 3000: Studio UI\n- 5555: Flower (Celery monitoring)\n- 9090: Prometheus\n- 3001: Grafana\n\n## GPU Requirements\n- NVIDIA GPU with NVENC/NVDEC support\n- 8GB+ VRAM recommended\n- CUDA 12.2+ compatible\n\n## Scaling\n- GPU workers scale based on queue depth\n- CPU workers scale based on system load\n- Auto-scaling policies in docker-compose.yml\n\n## Monitoring\n- Grafana dashboard: http://[pod-url]:3001\n- Prometheus metrics: http://[pod-url]:9090\n- Celery monitoring: http://[pod-url]:5555\n\n## Storage\n- Persistent video storage in /workspace/storage\n- Model cache in /workspace/models\n- Database and logs in /workspace/data"
+}

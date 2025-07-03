@@ -1,0 +1,54 @@
+# YouTube Shorts Generator - RunPod Dockerfile (GitHub Deployment)
+# Optimized for deployment from GitHub repository
+
+FROM runpod/base:0.4.0-cuda11.8.0
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies including Python
+RUN apt-get update && apt-get install -y \
+    ffmpeg \
+    git \
+    wget \
+    curl \
+    python3 \
+    python3-pip \
+    python3-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create python symlink
+RUN ln -s /usr/bin/python3 /usr/bin/python
+
+# Copy requirements first for better Docker layer caching
+COPY requirements-runpod.txt ./requirements.txt
+
+# Upgrade pip and install Python dependencies
+RUN python3 -m pip install --no-cache-dir --upgrade pip && \
+    python3 -m pip install --no-cache-dir -r requirements.txt
+
+# Copy the entire project
+COPY . .
+
+# Create necessary directories
+RUN mkdir -p /app/temp /app/outputs
+
+# Set environment variables
+ENV PYTHONPATH=/app
+ENV PYTHONUNBUFFERED=1
+ENV CUDA_VISIBLE_DEVICES=0
+
+# Health check to verify all dependencies
+RUN python3 -c "import openai; print('✓ All dependencies imported successfully'); print('✓ Health check complete')"
+
+# Expose port for RunPod (optional)
+EXPOSE 8000
+
+# Set the handler as the main command
+CMD ["python3", "-u", "handler.py"]
+
+# Metadata
+LABEL maintainer="YouTube Shorts Generator"
+LABEL description="AI-powered Torah lecture shorts generator with WhisperX and GPT"
+LABEL version="1.0.0"
+LABEL repository="https://github.com/your-username/youtube-shorts-generator"

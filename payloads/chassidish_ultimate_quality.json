@@ -1,0 +1,12 @@
+{
+  "input": {
+    "video_url": "https://example.com/chassidish-lecture.mp4",
+    "language": "he",
+    "num_clips": 10,
+    "min_duration": 30,
+    "max_duration": 90,
+    "vertical": true,
+    "subtitles": true,
+    "model_size": "large-v2"
+  }
+}
