@@ -27,7 +27,7 @@ def test_runpod_serverless(endpoint_id: str, api_key: str = None):
     except FileNotFoundError:
         print("❌ Test payload not found, using basic payload")
         test_payload = {
-            "video_url": "https://example.com/test.mp4",
+            "video_url": "https://pub-df98462245734d62b0041de219b0d8bd.r2.dev/videos/susUUninSWE.mp4",
             "num_clips": 3,
             "language": "he",
             "vertical": True,

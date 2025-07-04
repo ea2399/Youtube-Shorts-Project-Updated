@@ -50,5 +50,5 @@ RUN python3 -c "import torch; print(f'PyTorch: {torch.__version__}, CUDA: {torch
     python3 -c "import scenedetect; print('SceneDetect: OK')" && \
     echo "✅ All dependencies working"
 
-# Use complete stateless handler with full Phase 1-5 processing
-CMD ["python", "stateless_runpod_handler.py"]
+# Use PRODUCTION handler with REAL Phase 1-5 processing
+CMD ["python", "production_runpod_handler.py"]
