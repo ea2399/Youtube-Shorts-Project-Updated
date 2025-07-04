@@ -1,0 +1,54 @@
+# Simplified RunPod Dockerfile - No Database Dependencies
+# Fixes PostgreSQL startup issues
+FROM runpod/pytorch:2.1.0-py3.10-cuda11.8.0-devel-ubuntu22.04
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    ffmpeg \
+    libsndfile1 \
+    wget \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /app
+
+# Copy requirements and install Python packages
+COPY requirements-runpod.txt .
+RUN pip install --no-cache-dir \
+    --extra-index-url https://download.pytorch.org/whl/cu122 \
+    -r requirements-runpod.txt
+
+# Copy application code
+COPY . .
+
+# Create necessary directories
+RUN mkdir -p \
+    /app/storage \
+    /app/models/mediapipe \
+    /app/temp \
+    /app/outputs
+
+# Download MediaPipe models
+RUN echo "Downloading MediaPipe models..." && \
+    wget -O /app/models/mediapipe/face_detector.tflite \
+    "https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite" && \
+    wget -O /app/models/mediapipe/face_landmarker.task \
+    "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task" && \
+    echo "✓ MediaPipe models downloaded"
+
+# Set environment variables
+ENV PYTHONPATH=/app
+ENV CUDA_VISIBLE_DEVICES=0
+ENV TORCH_CUDA_ARCH_LIST="7.0 7.5 8.0 8.6"
+
+# Test imports
+RUN python3 -c "import torch; print(f'PyTorch: {torch.__version__}, CUDA: {torch.cuda.is_available()}')" && \
+    python3 -c "import mediapipe; print(f'MediaPipe: {mediapipe.__version__}')" && \
+    python3 -c "import cv2; print(f'OpenCV: {cv2.__version__}')" && \
+    python3 -c "import webrtcvad; print('WebRTC VAD: OK')" && \
+    python3 -c "import scenedetect; print('SceneDetect: OK')" && \
+    echo "✅ All dependencies working"
+
+# Use complete stateless handler with full Phase 1-5 processing
+CMD ["python", "stateless_runpod_handler.py"]

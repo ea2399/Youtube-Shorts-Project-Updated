@@ -19,7 +19,11 @@
       "mcp__zen__codereview",
       "Bash(npm run type-check:*)",
       "Bash(chmod:*)",
-      "Bash(pip search:*)"
+      "Bash(pip search:*)",
+      "Bash(pip install:*)",
+      "Bash(ls:*)",
+      "Bash(./pre_build_check.sh:*)",
+      "Bash(./validate_deps.sh)"
     ],
     "deny": []
   }
