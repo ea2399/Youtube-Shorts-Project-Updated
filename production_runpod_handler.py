@@ -132,7 +132,10 @@ def runpod_handler(event):
         print("\n🧠 PHASE 2: CORE INTELLIGENCE ENGINE")
         phase2_start = time.time()
         
-        # REAL Audio intelligence using YOUR modules
+        # REAL Audio intelligence using YOUR modules - NO FALLBACK
+        if import_status.get('pause_based_segmentation') != 'success':
+            raise Exception(f"pause_based_segmentation module required but failed to import: {import_status.get('pause_based_segmentation')}")
+        
         audio_analysis = real_audio_intelligence(video_path, language, debug_info)
         print(f"✅ Audio processed: {len(audio_analysis.get('segments', []))} segments")
         
@@ -156,7 +159,7 @@ def runpod_handler(event):
             for i, seg in enumerate(sample_segments):
                 print(f"    Sample segment {i+1}: {seg.get('start', 0):.1f}s - {seg.get('end', 0):.1f}s")
         
-        # REAL Visual intelligence using YOUR modules  
+        # REAL Visual intelligence using YOUR modules - NO FALLBACK
         visual_analysis = real_visual_intelligence(video_path, debug_info)
         print(f"✅ Visual processed: {visual_analysis.get('scene_count', 0)} scenes")
         
@@ -176,66 +179,65 @@ def runpod_handler(event):
             })
             print(f"📊 DATA FLOW: Visual analysis - {visual_analysis.get('scene_count', 0)} scenes, {len(visual_analysis.get('face_tracks', []))} face tracks")
         
-        # REAL Transcript processing - REQUIRE provided transcript for advanced features
-        if transcript_json:
-            if isinstance(transcript_json, str):
-                # URL provided - fetch it
-                print(f"📥 Fetching transcript from URL: {transcript_json}")
-                try:
-                    import requests
-                    response = requests.get(transcript_json, timeout=30)
-                    response.raise_for_status()
-                    transcript = response.json()
-                    print(f"✅ Fetched transcript: {len(transcript.get('segments', []))} segments")
-                    
-                    # DATA FLOW LOG: Transcript Fetch
-                    if data_flow_log is not None:
-                        sample_transcript_segments = transcript.get('segments', [])[:2]
-                        data_flow_log.append({
-                            "phase": "PHASE_2_INTELLIGENCE",
-                            "step": "transcript_fetch",
-                            "input": {"transcript_url": transcript_json},
-                            "output": {
-                                "total_segments": len(transcript.get('segments', [])),
-                                "language": transcript.get('language', 'unknown'),
-                                "sample_segments": sample_transcript_segments,
-                                "source": "WhisperX_URL"
-                            },
-                            "status": "success"
-                        })
-                        print(f"📊 DATA FLOW: Transcript fetched - {len(transcript.get('segments', []))} segments from URL")
-                        for i, seg in enumerate(sample_transcript_segments):
-                            print(f"    Sample transcript {i+1}: {seg.get('start', 0):.1f}s-{seg.get('end', 0):.1f}s: '{seg.get('text', '')[:50]}...'")
-                except Exception as e:
-                    print(f"❌ Failed to fetch transcript: {e}")
-                    raise Exception(f"Could not fetch transcript from URL: {transcript_json}")
-            else:
-                # Direct JSON object provided
-                transcript = transcript_json
-                print(f"✅ Using provided transcript: {len(transcript.get('segments', []))} segments")
+        # REAL Transcript processing - REQUIRED
+        if not transcript_json:
+            raise Exception("transcript_json is REQUIRED for AI processing - no fallback available")
+            
+        if isinstance(transcript_json, str):
+            # URL provided - fetch it
+            print(f"📥 Fetching transcript from URL: {transcript_json}")
+            try:
+                import requests
+                response = requests.get(transcript_json, timeout=30)
+                response.raise_for_status()
+                transcript = response.json()
+                print(f"✅ Fetched transcript: {len(transcript.get('segments', []))} segments")
                 
-                # DATA FLOW LOG: Direct Transcript
+                # DATA FLOW LOG: Transcript Fetch
                 if data_flow_log is not None:
                     sample_transcript_segments = transcript.get('segments', [])[:2]
                     data_flow_log.append({
                         "phase": "PHASE_2_INTELLIGENCE",
-                        "step": "transcript_direct",
-                        "input": {"transcript_type": "direct_json"},
+                        "step": "transcript_fetch",
+                        "input": {"transcript_url": transcript_json},
                         "output": {
                             "total_segments": len(transcript.get('segments', [])),
                             "language": transcript.get('language', 'unknown'),
                             "sample_segments": sample_transcript_segments,
-                            "source": "WhisperX_Direct"
+                            "source": "WhisperX_URL"
                         },
                         "status": "success"
                     })
-                    print(f"📊 DATA FLOW: Direct transcript - {len(transcript.get('segments', []))} segments")
+                    print(f"📊 DATA FLOW: Transcript fetched - {len(transcript.get('segments', []))} segments from URL")
                     for i, seg in enumerate(sample_transcript_segments):
                         print(f"    Sample transcript {i+1}: {seg.get('start', 0):.1f}s-{seg.get('end', 0):.1f}s: '{seg.get('text', '')[:50]}...'")
-            print("✅ WhisperX transcript ready for advanced processing")
+            except Exception as e:
+                print(f"❌ Failed to fetch transcript: {e}")
+                raise Exception(f"Could not fetch transcript from URL: {transcript_json}")
         else:
-            print("❌ No transcript provided - Phase 1-5 processing requires WhisperX transcript")
-            raise Exception("transcript_json is required for pause-based segmentation and context-aware prompting")
+            # Direct JSON object provided
+            transcript = transcript_json
+            print(f"✅ Using provided transcript: {len(transcript.get('segments', []))} segments")
+            
+            # DATA FLOW LOG: Direct Transcript
+            if data_flow_log is not None:
+                sample_transcript_segments = transcript.get('segments', [])[:2]
+                data_flow_log.append({
+                    "phase": "PHASE_2_INTELLIGENCE",
+                    "step": "transcript_direct",
+                    "input": {"transcript_type": "direct_json"},
+                    "output": {
+                        "total_segments": len(transcript.get('segments', [])),
+                        "language": transcript.get('language', 'unknown'),
+                        "sample_segments": sample_transcript_segments,
+                        "source": "WhisperX_Direct"
+                    },
+                    "status": "success"
+                })
+                print(f"📊 DATA FLOW: Direct transcript - {len(transcript.get('segments', []))} segments")
+                for i, seg in enumerate(sample_transcript_segments):
+                    print(f"    Sample transcript {i+1}: {seg.get('start', 0):.1f}s-{seg.get('end', 0):.1f}s: '{seg.get('text', '')[:50]}...'")
+        print("✅ WhisperX transcript ready for advanced processing")
         
         phase2_time = time.time() - phase2_start
         print(f"⏱️ Phase 2 completed in {phase2_time:.1f}s")
@@ -299,6 +301,10 @@ def runpod_handler(event):
         print("\n🎨 PHASE 4: QUALITY VALIDATION")
         phase4_start = time.time()
         
+        # REAL Quality validation - NO FALLBACK
+        if import_status.get('context_aware_prompting') != 'success':
+            raise Exception(f"context_aware_prompting module required for quality validation but failed to import: {import_status.get('context_aware_prompting')}")
+            
         validated_edl = real_validate_and_enhance_edl(
             edl, audio_analysis, visual_analysis, min_duration, max_duration, debug_info
         )
@@ -343,6 +349,10 @@ def runpod_handler(event):
         print("\n🎬 PHASE 5: PRODUCTION RENDERING")
         phase5_start = time.time()
         
+        # REAL Rendering - NO FALLBACK
+        if import_status.get('cut_clips') != 'success':
+            raise Exception(f"cut_clips module required for rendering but failed to import: {import_status.get('cut_clips')}")
+            
         clips = real_render_clips(
             video_path=video_path,
             edl=validated_edl,
@@ -463,86 +473,49 @@ def real_download_video(video_url: str, workspace: Path, debug_info: dict = None
                 }
             return output_path if output_path.exists() else None
         else:
-            # Fallback to yt-dlp
-            return fallback_download(video_url, workspace)
+            raise Exception(f"download module not available - Import status: {import_status.get('download', 'not imported')}")
             
     except Exception as e:
         print(f"Download error: {e}")
-        return fallback_download(video_url, workspace)
+        raise Exception(f"Video download failed: {e}")
 
-def fallback_download(video_url: str, workspace: Path) -> Optional[Path]:
-    """Fallback download using yt-dlp"""
-    try:
-        import yt_dlp
-        output_path = workspace / "source_video.mp4"
-        
-        ydl_opts = {
-            'outtmpl': str(output_path),
-            'format': 'best[ext=mp4]',
-        }
-        
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            ydl.download([video_url])
-        
-        return output_path if output_path.exists() else None
-    except Exception as e:
-        print(f"Fallback download error: {e}")
-        return None
+# NO FALLBACK DOWNLOADS - Use only real modules
 
 def real_audio_intelligence(video_path: Path, language: str, debug_info: dict = None) -> Dict[str, Any]:
     """REAL audio processing using YOUR pause_based_segmentation.py"""
     try:
-        # Use YOUR existing pause-based segmentation
-        if 'pause_based_segmentation' in sys.modules:
-            segments = pause_based_segmentation.segment_by_pauses(
-                str(video_path), 
-                pause_threshold=1.0,
-                min_segment_length=15
-            )
+        # Use YOUR existing pause-based segmentation - NO FALLBACK
+        if import_status.get('pause_based_segmentation') != 'success':
+            raise Exception(f"pause_based_segmentation module required but failed to import: {import_status.get('pause_based_segmentation')}")
             
-            result = {
-                "segments": segments,
-                "filler_words": [],  # Could add YOUR filler detection
-                "sample_rate": 16000,
-                "duration": get_video_duration(video_path),
-                "method": "pause_based_segmentation"
+        segments = pause_based_segmentation.segment_by_pauses(
+            str(video_path), 
+            pause_threshold=1.0,
+            min_segment_length=15
+        )
+        
+        result = {
+            "segments": segments,
+            "filler_words": [],  # Could add YOUR filler detection
+            "sample_rate": 16000,
+            "duration": get_video_duration(video_path),
+            "method": "pause_based_segmentation"
+        }
+        
+        if debug_info is not None:
+            debug_info['audio_analysis'] = {
+                'segments_detected': len(segments),
+                'method': 'pause_based_segmentation',
+                'pause_threshold': 1.0
             }
-            
-            if debug_info is not None:
-                debug_info['audio_analysis'] = {
-                    'segments_detected': len(segments),
-                    'method': 'pause_based_segmentation',
-                    'pause_threshold': 1.0
-                }
-            
-            return result
-        else:
-            return fallback_audio_analysis(video_path, language)
+        
+        return result
             
     except Exception as e:
         print(f"Audio processing error: {e}")
-        return fallback_audio_analysis(video_path, language)
+        raise Exception(f"Audio analysis failed: {e}")
 
-def fallback_audio_analysis(video_path: Path, language: str) -> Dict[str, Any]:
-    """Fallback audio analysis"""
-    duration = get_video_duration(video_path)
-    segment_length = 30
-    segments = []
-    
-    for i in range(0, int(duration), segment_length):
-        segments.append({
-            "start": i,
-            "end": min(i + segment_length, duration),
-            "speech": True
-        })
-    
-    return {
-        "segments": segments,
-        "filler_words": [],
-        "sample_rate": 16000,
-        "duration": duration,
-        "method": "fallback"
-    }
+# NO FALLBACK AUDIO ANALYSIS
 
 def real_visual_intelligence(video_path: Path, debug_info: dict = None) -> Dict[str, Any]:
     """REAL visual processing with scene detection"""
@@ -583,31 +556,9 @@ def real_visual_intelligence(video_path: Path, debug_info: dict = None) -> Dict[
         
     except Exception as e:
         print(f"Visual processing error: {e}")
-        return fallback_visual_analysis(video_path)
+        raise Exception(f"Visual analysis failed: {e}")
 
-def fallback_visual_analysis(video_path: Path) -> Dict[str, Any]:
-    """Fallback visual analysis"""
-    duration = get_video_duration(video_path)
-    fps = get_video_fps(video_path)
-    
-    # Create scenes every 60 seconds
-    scenes = []
-    for i in range(0, int(duration), 60):
-        scenes.append({
-            "timestamp": i,
-            "end_timestamp": min(i + 60, duration),
-            "frame": int(i * fps),
-            "scene_change": True
-        })
-    
-    return {
-        "scenes": scenes,
-        "face_tracks": [],
-        "scene_count": len(scenes),
-        "total_frames": int(duration * fps),
-        "fps": fps,
-        "method": "fallback"
-    }
+# NO FALLBACK VISUAL ANALYSIS
 
 def real_generate_transcript(video_path: Path, language: str, debug_info: dict = None) -> Dict[str, Any]:
     """REAL transcript generation using YOUR transcribe.py"""
@@ -625,34 +576,13 @@ def real_generate_transcript(video_path: Path, language: str, debug_info: dict =
             
             return transcript_result
         else:
-            return fallback_transcript(video_path, language)
+            raise Exception(f"transcribe module not available - Import status: {import_status.get('transcribe', 'not imported')}")
             
     except Exception as e:
         print(f"Transcript error: {e}")
-        return fallback_transcript(video_path, language)
+        raise Exception(f"Transcript generation failed: {e}")
 
-def fallback_transcript(video_path: Path, language: str) -> Dict[str, Any]:
-    """Fallback transcript with proper segmentation"""
-    duration = get_video_duration(video_path)
-    segment_length = 45  # 45-second segments
-    
-    segments = []
-    for i in range(0, int(duration), segment_length):
-        start_time = i
-        end_time = min(i + segment_length, duration)
-        
-        segments.append({
-            "start": start_time,
-            "end": end_time,
-            "text": f"Segment {len(segments) + 1}: Content from {start_time}s to {end_time}s",
-            "confidence": 0.8
-        })
-    
-    return {
-        "segments": segments,
-        "language": language,
-        "method": "fallback"
-    }
+# NO FALLBACK TRANSCRIPT GENERATION
 
 def real_generate_edl(video_path: Path, transcript: Dict, audio_analysis: Dict, 
                      visual_analysis: Dict, num_clips: int, language: str, 
@@ -837,19 +767,23 @@ def real_render_clips(video_path: Path, edl: Dict, workspace: Path, vertical: bo
             clip_filename = f"clip_{i+1:03d}_{'vertical' if vertical else 'horizontal'}.mp4"
             clip_path = workspace / clip_filename
             
-            # Always use the improved fallback rendering with smart GPU detection
-            success = fallback_render_clip(video_path, clip_path, start_time, duration, vertical)
+            # Use smart GPU rendering - NO FALLBACK
+            success = smart_render_clip(video_path, clip_path, start_time, duration, vertical)
             
             if success and clip_path.exists():
                 render_successes += 1
                 
                 # Apply reframing if needed
-                if vertical and 'reframe' in sys.modules:
+                if vertical and import_status.get('reframe') == 'success':
                     reframe.make_vertical(str(clip_path), str(clip_path))
+                elif vertical:
+                    print("⚠️ reframe module not available for vertical conversion")
                 
                 # Apply normalization if needed
-                if 'normalize' in sys.modules:
+                if import_status.get('normalize') == 'success':
                     normalize.normalize_audio(str(clip_path), str(clip_path))
+                else:
+                    print("⚠️ normalize module not available for audio normalization")
                 
                 clip_data = {
                     "id": clip_info["id"],
@@ -892,8 +826,8 @@ def detect_nvenc_support() -> bool:
     except:
         return False
 
-def fallback_render_clip(video_path: Path, output_path: Path, start_time: float, 
-                        duration: float, vertical: bool) -> bool:
+def smart_render_clip(video_path: Path, output_path: Path, start_time: float, 
+                      duration: float, vertical: bool) -> bool:
     """Smart FFmpeg rendering with GPU fallback"""
     try:
         # Test encoding strategies in order of preference
@@ -1243,14 +1177,14 @@ Evaluating {segment.get('duration', 0):.1f}s clip for standalone comprehensibili
             
             return top_evaluations
         else:
-            print("⚠️ context_aware_prompting not available or no segments")
-            return []
+            error_msg = f"AI modules not available: pause_based_segmentation={import_status.get('pause_based_segmentation')}, context_aware_prompting={import_status.get('context_aware_prompting')}"
+            raise Exception(error_msg)
     
     except Exception as e:
         print(f"❌ AI clip extraction failed: {e}")
         import traceback
         traceback.print_exc()
-        return []
+        raise Exception(f"AI clip extraction completely failed: {e}")
 
 # RunPod serverless entry point
 if __name__ == "__main__":

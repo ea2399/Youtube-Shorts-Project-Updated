@@ -1,89 +1,6 @@
 ﻿{
     "clips":  [
-                  {
-                      "download_url":  "https://torah-media-agency.r2.dev/shorts/job_1751833235/clip_001_vertical.mp4",
-                      "duration":  25.16400000000001,
-                      "file_size":  7417577,
-                      "filename":  "clip_001_vertical.mp4",
-                      "id":  "clip_001",
-                      "metadata":  {
-                                       "face_tracking_quality":  0.92,
-                                       "language":  "en",
-                                       "scene_type":  "talking_head",
-                                       "text":  "So the tour brings from the Sefer HaMitzvahs that he says like this, the Kosovoid, you should say, and that we\u0027re eating from its fruits, and we\u0027re getting sustained from its goodness, the goodness of the land."
-                                   },
-                      "path":  "/app/outputs/job_1751833235/clip_001_vertical.mp4",
-                      "r2_bucket":  "torah-media-agency",
-                      "r2_key":  "shorts/job_1751833235/clip_001_vertical.mp4",
-                      "r2_url":  "https://torah-media-agency.r2.dev/shorts/job_1751833235/clip_001_vertical.mp4",
-                      "reasoning":  {
-                                        "audio_confidence":  0.8,
-                                        "engagement_proxy":  0.8,
-                                        "explanation":  "Duration: 25.16400000000001s, good transcript segment",
-                                        "semantic_score":  0.8,
-                                        "visual_quality":  0.8
-                                    },
-                      "source_end":  80.903,
-                      "source_start":  55.739,
-                      "status":  "uploaded_to_r2",
-                      "vertical":  true
-                  },
-                  {
-                      "download_url":  "https://torah-media-agency.r2.dev/shorts/job_1751833235/clip_002_vertical.mp4",
-                      "duration":  21.670999999999935,
-                      "file_size":  6213180,
-                      "filename":  "clip_002_vertical.mp4",
-                      "id":  "clip_002",
-                      "metadata":  {
-                                       "face_tracking_quality":  0.92,
-                                       "language":  "en",
-                                       "scene_type":  "talking_head",
-                                       "text":  " generally a shahakal is where you want to be at but a shahakal on a you know a sirloin is not necessarily you know needed for davening i understand some people have meat diets and like there\u0027s like certain you know there\u0027s a dietary needs and stuff like that but generally speaking a person doesn\u0027t need um you know a t-bone pre-shakras"
-                                   },
-                      "path":  "/app/outputs/job_1751833235/clip_002_vertical.mp4",
-                      "r2_bucket":  "torah-media-agency",
-                      "r2_key":  "shorts/job_1751833235/clip_002_vertical.mp4",
-                      "r2_url":  "https://torah-media-agency.r2.dev/shorts/job_1751833235/clip_002_vertical.mp4",
-                      "reasoning":  {
-                                        "audio_confidence":  0.8,
-                                        "engagement_proxy":  0.8,
-                                        "explanation":  "Duration: 21.670999999999935s, good transcript segment",
-                                        "semantic_score":  0.8,
-                                        "visual_quality":  0.8
-                                    },
-                      "source_end":  1038.206,
-                      "source_start":  1016.535,
-                      "status":  "uploaded_to_r2",
-                      "vertical":  true
-                  },
-                  {
-                      "download_url":  "https://torah-media-agency.r2.dev/shorts/job_1751833235/clip_003_vertical.mp4",
-                      "duration":  20.31100000000015,
-                      "file_size":  5766096,
-                      "filename":  "clip_003_vertical.mp4",
-                      "id":  "clip_003",
-                      "metadata":  {
-                                       "face_tracking_quality":  0.92,
-                                       "language":  "en",
-                                       "scene_type":  "talking_head",
-                                       "text":  " that certain places, based on the foods that grow there, will be that certain places will be more Av Megusham, more that the fruits themselves and the land itself is producing more physical kind of consciousness."
-                                   },
-                      "path":  "/app/outputs/job_1751833235/clip_003_vertical.mp4",
-                      "r2_bucket":  "torah-media-agency",
-                      "r2_key":  "shorts/job_1751833235/clip_003_vertical.mp4",
-                      "r2_url":  "https://torah-media-agency.r2.dev/shorts/job_1751833235/clip_003_vertical.mp4",
-                      "reasoning":  {
-                                        "audio_confidence":  0.8,
-                                        "engagement_proxy":  0.8,
-                                        "explanation":  "Duration: 20.31100000000015s, good transcript segment",
-                                        "semantic_score":  0.8,
-                                        "visual_quality":  0.8
-                                    },
-                      "source_end":  1270.459,
-                      "source_start":  1250.148,
-                      "status":  "uploaded_to_r2",
-                      "vertical":  true
-                  }
+
               ],
     "data_flow_log":  [
                           {
@@ -99,17 +16,17 @@
                                                                 "height":  720,
                                                                 "width":  1280
                                                             },
-                                             "video_path":  "/app/outputs/job_1751833235/source_video.mp4"
+                                             "video_path":  "/app/outputs/job_1751835166/source_video.mp4"
                                          },
                               "phase":  "PHASE_1_FOUNDATION",
-                              "processing_time":  9.624863147735596,
+                              "processing_time":  4.847229480743408,
                               "status":  "success",
                               "step":  "video_download"
                           },
                           {
                               "input":  {
                                             "language":  "en",
-                                            "video_path":  "/app/outputs/job_1751833235/source_video.mp4"
+                                            "video_path":  "/app/outputs/job_1751835166/source_video.mp4"
                                         },
                               "output":  {
                                              "duration":  2532.0294999999996,
@@ -140,7 +57,7 @@
                           },
                           {
                               "input":  {
-                                            "video_path":  "/app/outputs/job_1751833235/source_video.mp4"
+                                            "video_path":  "/app/outputs/job_1751835166/source_video.mp4"
                                         },
                               "output":  {
                                              "face_tracks":  0,
@@ -451,77 +368,38 @@
                                             "visual_scenes":  2
                                         },
                               "output":  {
-                                             "candidate_clips_generated":  3,
+                                             "candidate_clips_generated":  0,
                                              "edl_version":  1,
                                              "overall_quality_estimate":  0,
                                              "processing_method":  "unknown",
                                              "sample_clips":  [
-                                                                  {
-                                                                      "duration":  25.16400000000001,
-                                                                      "id":  "clip_001",
-                                                                      "metadata":  {
-                                                                                       "face_tracking_quality":  0.92,
-                                                                                       "language":  "en",
-                                                                                       "scene_type":  "talking_head",
-                                                                                       "text":  "So the tour brings from the Sefer HaMitzvahs that he says like this, the Kosovoid, you should say, and that we\u0027re eating from its fruits, and we\u0027re getting sustained from its goodness, the goodness of the land."
-                                                                                   },
-                                                                      "reasoning":  {
-                                                                                        "audio_confidence":  0.8,
-                                                                                        "engagement_proxy":  0.8,
-                                                                                        "explanation":  "Duration: 25.16400000000001s, good transcript segment",
-                                                                                        "semantic_score":  0.8,
-                                                                                        "visual_quality":  0.8
-                                                                                    },
-                                                                      "source_end":  80.903,
-                                                                      "source_start":  55.739,
-                                                                      "type":  "clip"
-                                                                  },
-                                                                  {
-                                                                      "duration":  21.670999999999935,
-                                                                      "id":  "clip_002",
-                                                                      "metadata":  {
-                                                                                       "face_tracking_quality":  0.92,
-                                                                                       "language":  "en",
-                                                                                       "scene_type":  "talking_head",
-                                                                                       "text":  " generally a shahakal is where you want to be at but a shahakal on a you know a sirloin is not necessarily you know needed for davening i understand some people have meat diets and like there\u0027s like certain you know there\u0027s a dietary needs and stuff like that but generally speaking a person doesn\u0027t need um you know a t-bone pre-shakras"
-                                                                                   },
-                                                                      "reasoning":  {
-                                                                                        "audio_confidence":  0.8,
-                                                                                        "engagement_proxy":  0.8,
-                                                                                        "explanation":  "Duration: 21.670999999999935s, good transcript segment",
-                                                                                        "semantic_score":  0.8,
-                                                                                        "visual_quality":  0.8
-                                                                                    },
-                                                                      "source_end":  1038.206,
-                                                                      "source_start":  1016.535,
-                                                                      "type":  "clip"
-                                                                  }
+
                                                               ]
                                          },
                               "phase":  "PHASE_3_EDL_GENERATION",
-                              "processing_time":  0.046694040298461914,
+                              "processing_time":  0.05637979507446289,
                               "status":  "success",
                               "step":  "multi_modal_fusion"
                           },
                           {
                               "input":  {
-                                            "candidate_clips":  3,
+                                            "candidate_clips":  0,
                                             "max_duration":  60,
                                             "min_duration":  20
                                         },
                               "output":  {
-                                             "overall_quality_score":  0.8,
+                                             "overall_quality_score":  0,
                                              "quality_metrics":  {
-                                                                     "cut_smoothness":  0.94,
-                                                                     "engagement_score":  0.8,
-                                                                     "semantic_coherence":  0.8,
-                                                                     "visual_continuity":  0.8
+                                                                     "cut_smoothness":  0,
+                                                                     "engagement_score":  0,
+                                                                     "semantic_coherence":  0,
+                                                                     "visual_continuity":  0
                                                                  },
                                              "rejected_clips":  0,
-                                             "validated_clips":  3
+                                             "validated_clips":  0
                                          },
                               "phase":  "PHASE_4_QUALITY_VALIDATION",
-                              "processing_time":  0.00005269050598144531,
+                              "processing_time":  0.0000152587890625,
                               "status":  "success",
                               "step":  "quality_enhancement"
                           },
@@ -529,38 +407,38 @@
                               "input":  {
                                             "language":  "en",
                                             "subtitles_enabled":  true,
-                                            "validated_clips":  3,
+                                            "validated_clips":  0,
                                             "vertical_format":  true
                                         },
                               "output":  {
                                              "clips_with_public_urls":  0,
-                                             "final_clips_rendered":  3,
-                                             "r2_uploads_successful":  3,
+                                             "final_clips_rendered":  0,
+                                             "r2_uploads_successful":  0,
                                              "rendering_method":  "GPU_NVENC",
                                              "total_size_mb":  0
                                          },
                               "phase":  "PHASE_5_PRODUCTION_RENDERING",
-                              "processing_time":  113.65215229988098,
+                              "processing_time":  0.00003528594970703125,
                               "status":  "success",
                               "step":  "gpu_accelerated_rendering"
                           }
                       ],
     "debug_info":  {
                        "edl_generation":  {
-                                              "candidate_clips":  3,
-                                              "filtered_clips":  3,
+                                              "candidate_clips":  0,
+                                              "filtered_clips":  0,
                                               "max_duration":  60,
                                               "min_duration":  20
                                           },
                        "rendering":  {
-                                         "clips_attempted":  3,
-                                         "clips_successful":  3,
-                                         "success_rate":  1,
-                                         "workspace":  "/app/outputs/job_1751833235"
+                                         "clips_attempted":  0,
+                                         "clips_successful":  0,
+                                         "success_rate":  0,
+                                         "workspace":  "/app/outputs/job_1751835166"
                                      },
                        "validation":  {
-                                          "clips_after":  3,
-                                          "clips_before":  3,
+                                          "clips_after":  0,
+                                          "clips_before":  0,
                                           "duration_range":  "20-60s",
                                           "quality_threshold":  0.7
                                       },
@@ -571,36 +449,32 @@
                                            }
                    },
     "metadata":  {
-                     "clips_generated":  3,
+                     "clips_generated":  0,
                      "clips_requested":  3,
                      "language":  "en",
                      "max_duration":  60,
                      "min_duration":  20,
-                     "processing_time":  178.86,
+                     "processing_time":  61.01,
                      "quality_level":  "ultimate",
                      "source_duration":  2532.0294999999996,
                      "subtitles_enabled":  true,
                      "vertical_format":  true,
-                     "workspace":  "/app/outputs/job_1751833235"
+                     "workspace":  "/app/outputs/job_1751835166"
                  },
     "quality_metrics":  {
-                            "cut_smoothness":  0.94,
-                            "engagement_score":  0.8,
-                            "overall_score":  0.8,
-                            "semantic_coherence":  0.8,
-                            "visual_continuity":  0.8
+                            "overall_score":  0
                         },
     "status":  "success",
     "system_info":  {
                         "cuda_device":  "NVIDIA RTX A5000",
                         "gpu_used":  true,
                         "phase_timings":  {
-                                              "phase1_foundation":  9.62,
-                                              "phase2_intelligence":  55.47,
-                                              "phase3_edl":  0.05,
+                                              "phase1_foundation":  4.85,
+                                              "phase2_intelligence":  56.09,
+                                              "phase3_edl":  0.06,
                                               "phase4_validation":  0,
-                                              "phase5_rendering":  113.65,
-                                              "total":  178.86
+                                              "phase5_rendering":  0,
+                                              "total":  61.01
                                           },
                         "phases_completed":  [
                                                  "Foundation",
