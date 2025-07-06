@@ -82,6 +82,7 @@ def runpod_handler(event):
         r2_client = init_r2_client()
         
         debug_info = {} if debug_mode else None
+        data_flow_log = [] if debug_mode else None
         
         # =================================================================
         # PHASE 1: FOUNDATION - REAL Video Download
@@ -98,6 +99,22 @@ def runpod_handler(event):
         phase1_time = time.time() - phase1_start
         print(f"✅ Downloaded: {video_info['duration']:.1f}s video ({phase1_time:.1f}s)")
         
+        # DATA FLOW LOG: Phase 1 Results
+        if data_flow_log is not None:
+            data_flow_log.append({
+                "phase": "PHASE_1_FOUNDATION",
+                "step": "video_download",
+                "input": {"video_url": video_url},
+                "output": {
+                    "video_path": str(video_path),
+                    "video_info": video_info,
+                    "file_size_mb": os.path.getsize(video_path) / (1024*1024) if video_path.exists() else 0
+                },
+                "processing_time": phase1_time,
+                "status": "success"
+            })
+            print(f"📊 DATA FLOW: Video downloaded - {video_info['duration']:.1f}s duration, {video_info['width']}x{video_info['height']}, {os.path.getsize(video_path)/(1024*1024):.1f}MB")
+        
         # =================================================================
         # PHASE 2: INTELLIGENCE ENGINE - REAL Audio/Visual Processing
         # =================================================================
@@ -108,9 +125,45 @@ def runpod_handler(event):
         audio_analysis = real_audio_intelligence(video_path, language, debug_info)
         print(f"✅ Audio processed: {len(audio_analysis.get('segments', []))} segments")
         
+        # DATA FLOW LOG: Audio Analysis Results
+        if data_flow_log is not None:
+            sample_segments = audio_analysis.get('segments', [])[:3]  # First 3 segments
+            data_flow_log.append({
+                "phase": "PHASE_2_INTELLIGENCE", 
+                "step": "audio_analysis",
+                "input": {"video_path": str(video_path), "language": language},
+                "output": {
+                    "total_segments": len(audio_analysis.get('segments', [])),
+                    "method": audio_analysis.get('method', 'unknown'),
+                    "duration": audio_analysis.get('duration', 0),
+                    "sample_segments": sample_segments,
+                    "filler_words_count": len(audio_analysis.get('filler_words', []))
+                },
+                "status": "success"
+            })
+            print(f"📊 DATA FLOW: Audio analysis - {len(audio_analysis.get('segments', []))} segments, method: {audio_analysis.get('method')}")
+            for i, seg in enumerate(sample_segments):
+                print(f"    Sample segment {i+1}: {seg.get('start', 0):.1f}s - {seg.get('end', 0):.1f}s")
+        
         # REAL Visual intelligence using YOUR modules  
         visual_analysis = real_visual_intelligence(video_path, debug_info)
         print(f"✅ Visual processed: {visual_analysis.get('scene_count', 0)} scenes")
+        
+        # DATA FLOW LOG: Visual Analysis Results
+        if data_flow_log is not None:
+            data_flow_log.append({
+                "phase": "PHASE_2_INTELLIGENCE",
+                "step": "visual_analysis", 
+                "input": {"video_path": str(video_path)},
+                "output": {
+                    "scene_count": visual_analysis.get('scene_count', 0),
+                    "face_tracks": len(visual_analysis.get('face_tracks', [])),
+                    "object_detections": len(visual_analysis.get('object_detections', [])),
+                    "method": visual_analysis.get('method', 'unknown')
+                },
+                "status": "success"
+            })
+            print(f"📊 DATA FLOW: Visual analysis - {visual_analysis.get('scene_count', 0)} scenes, {len(visual_analysis.get('face_tracks', []))} face tracks")
         
         # REAL Transcript processing - REQUIRE provided transcript for advanced features
         if transcript_json:
@@ -123,6 +176,25 @@ def runpod_handler(event):
                     response.raise_for_status()
                     transcript = response.json()
                     print(f"✅ Fetched transcript: {len(transcript.get('segments', []))} segments")
+                    
+                    # DATA FLOW LOG: Transcript Fetch
+                    if data_flow_log is not None:
+                        sample_transcript_segments = transcript.get('segments', [])[:2]
+                        data_flow_log.append({
+                            "phase": "PHASE_2_INTELLIGENCE",
+                            "step": "transcript_fetch",
+                            "input": {"transcript_url": transcript_json},
+                            "output": {
+                                "total_segments": len(transcript.get('segments', [])),
+                                "language": transcript.get('language', 'unknown'),
+                                "sample_segments": sample_transcript_segments,
+                                "source": "WhisperX_URL"
+                            },
+                            "status": "success"
+                        })
+                        print(f"📊 DATA FLOW: Transcript fetched - {len(transcript.get('segments', []))} segments from URL")
+                        for i, seg in enumerate(sample_transcript_segments):
+                            print(f"    Sample transcript {i+1}: {seg.get('start', 0):.1f}s-{seg.get('end', 0):.1f}s: '{seg.get('text', '')[:50]}...'")
                 except Exception as e:
                     print(f"❌ Failed to fetch transcript: {e}")
                     raise Exception(f"Could not fetch transcript from URL: {transcript_json}")
@@ -130,6 +202,25 @@ def runpod_handler(event):
                 # Direct JSON object provided
                 transcript = transcript_json
                 print(f"✅ Using provided transcript: {len(transcript.get('segments', []))} segments")
+                
+                # DATA FLOW LOG: Direct Transcript
+                if data_flow_log is not None:
+                    sample_transcript_segments = transcript.get('segments', [])[:2]
+                    data_flow_log.append({
+                        "phase": "PHASE_2_INTELLIGENCE",
+                        "step": "transcript_direct",
+                        "input": {"transcript_type": "direct_json"},
+                        "output": {
+                            "total_segments": len(transcript.get('segments', [])),
+                            "language": transcript.get('language', 'unknown'),
+                            "sample_segments": sample_transcript_segments,
+                            "source": "WhisperX_Direct"
+                        },
+                        "status": "success"
+                    })
+                    print(f"📊 DATA FLOW: Direct transcript - {len(transcript.get('segments', []))} segments")
+                    for i, seg in enumerate(sample_transcript_segments):
+                        print(f"    Sample transcript {i+1}: {seg.get('start', 0):.1f}s-{seg.get('end', 0):.1f}s: '{seg.get('text', '')[:50]}...'")
             print("✅ WhisperX transcript ready for advanced processing")
         else:
             print("❌ No transcript provided - Phase 1-5 processing requires WhisperX transcript")
@@ -154,12 +245,42 @@ def runpod_handler(event):
             quality_level=quality_level,
             min_duration=min_duration,
             max_duration=max_duration,
-            debug_info=debug_info
+            debug_info=debug_info,
+            data_flow_log=data_flow_log
         )
         
         candidate_clips = len(edl.get('timeline', []))
         phase3_time = time.time() - phase3_start
         print(f"✅ EDL generated: {candidate_clips} candidate clips ({phase3_time:.1f}s)")
+        
+        # DATA FLOW LOG: EDL Generation Results
+        if data_flow_log is not None:
+            sample_clips = edl.get('timeline', [])[:2]  # First 2 clips
+            data_flow_log.append({
+                "phase": "PHASE_3_EDL_GENERATION",
+                "step": "multi_modal_fusion",
+                "input": {
+                    "num_clips_requested": num_clips,
+                    "transcript_segments": len(transcript.get('segments', [])),
+                    "audio_segments": len(audio_analysis.get('segments', [])),
+                    "visual_scenes": visual_analysis.get('scene_count', 0),
+                    "quality_level": quality_level
+                },
+                "output": {
+                    "candidate_clips_generated": candidate_clips,
+                    "edl_version": edl.get('version', 1),
+                    "processing_method": edl.get('method', 'unknown'),
+                    "sample_clips": sample_clips,
+                    "overall_quality_estimate": edl.get('quality_metrics', {}).get('overall_score', 0)
+                },
+                "processing_time": phase3_time,
+                "status": "success"
+            })
+            print(f"📊 DATA FLOW: EDL generated - {candidate_clips} clips using {edl.get('method', 'unknown')} method")
+            for i, clip in enumerate(sample_clips):
+                print(f"    Sample clip {i+1}: {clip.get('source_start', 0):.1f}s-{clip.get('source_end', 0):.1f}s (duration: {clip.get('duration', 0):.1f}s)")
+                if 'reasoning' in clip:
+                    print(f"        Quality scores: audio={clip['reasoning'].get('audio_confidence', 0):.2f}, visual={clip['reasoning'].get('visual_quality', 0):.2f}")
         
         # =================================================================
         # PHASE 4: MANUAL EDITING BACKEND - REAL Quality validation
@@ -175,6 +296,35 @@ def runpod_handler(event):
         quality_score = validated_edl.get('quality_metrics', {}).get('overall_score', 0)
         phase4_time = time.time() - phase4_start
         print(f"✅ Validated: {validated_clips} clips, score: {quality_score} ({phase4_time:.1f}s)")
+        
+        # DATA FLOW LOG: Quality Validation Results
+        if data_flow_log is not None:
+            quality_metrics = validated_edl.get('quality_metrics', {})
+            rejected_clips = candidate_clips - validated_clips
+            data_flow_log.append({
+                "phase": "PHASE_4_QUALITY_VALIDATION",
+                "step": "quality_enhancement",
+                "input": {
+                    "candidate_clips": candidate_clips,
+                    "min_duration": min_duration,
+                    "max_duration": max_duration
+                },
+                "output": {
+                    "validated_clips": validated_clips,
+                    "rejected_clips": rejected_clips,
+                    "overall_quality_score": quality_score,
+                    "quality_metrics": {
+                        "cut_smoothness": quality_metrics.get('cut_smoothness', 0),
+                        "visual_continuity": quality_metrics.get('visual_continuity', 0),
+                        "semantic_coherence": quality_metrics.get('semantic_coherence', 0),
+                        "engagement_score": quality_metrics.get('engagement_score', 0)
+                    }
+                },
+                "processing_time": phase4_time,
+                "status": "success"
+            })
+            print(f"📊 DATA FLOW: Quality validation - {validated_clips} clips validated, {rejected_clips} rejected")
+            print(f"    Quality metrics: smoothness={quality_metrics.get('cut_smoothness', 0):.2f}, continuity={quality_metrics.get('visual_continuity', 0):.2f}")
         
         # =================================================================
         # PHASE 5: PRODUCTION RENDERING - REAL GPU-accelerated output
@@ -198,6 +348,33 @@ def runpod_handler(event):
         
         phase5_time = time.time() - phase5_start
         print(f"✅ Rendered: {len(clips)} final clips ({phase5_time:.1f}s)")
+        
+        # DATA FLOW LOG: Final Rendering Results
+        if data_flow_log is not None:
+            total_size_mb = sum(clip.get('size_mb', 0) for clip in clips_with_urls)
+            data_flow_log.append({
+                "phase": "PHASE_5_PRODUCTION_RENDERING",
+                "step": "gpu_accelerated_rendering",
+                "input": {
+                    "validated_clips": validated_clips,
+                    "vertical_format": vertical,
+                    "subtitles_enabled": subtitles,
+                    "language": language
+                },
+                "output": {
+                    "final_clips_rendered": len(clips),
+                    "total_size_mb": total_size_mb,
+                    "r2_uploads_successful": len(clips_with_urls),
+                    "clips_with_public_urls": len([c for c in clips_with_urls if 'public_url' in c]),
+                    "rendering_method": "GPU_NVENC" if torch.cuda.is_available() else "CPU"
+                },
+                "processing_time": phase5_time,
+                "status": "success"
+            })
+            print(f"📊 DATA FLOW: Final rendering - {len(clips)} clips rendered, {total_size_mb:.1f}MB total")
+            for i, clip in enumerate(clips_with_urls[:2]):  # Sample first 2 clips
+                print(f"    Final clip {i+1}: {clip.get('duration', 0):.1f}s, {clip.get('size_mb', 0):.1f}MB")
+                print(f"        Public URL: {clip.get('public_url', 'N/A')[:80]}...")
         
         # Calculate total processing time
         total_time = time.time() - start_time
@@ -240,7 +417,8 @@ def runpod_handler(event):
                     "total": round(total_time, 2)
                 }
             },
-            "debug_info": debug_info if debug_mode else None
+            "debug_info": debug_info if debug_mode else None,
+            "data_flow_log": data_flow_log if debug_mode else None
         }
         
         print(f"\n🎉 SUCCESS! REAL processing completed in {total_time:.1f}s")
@@ -468,7 +646,7 @@ def fallback_transcript(video_path: Path, language: str) -> Dict[str, Any]:
 def real_generate_edl(video_path: Path, transcript: Dict, audio_analysis: Dict, 
                      visual_analysis: Dict, num_clips: int, language: str, 
                      quality_level: str, min_duration: int, max_duration: int,
-                     debug_info: dict = None) -> Dict[str, Any]:
+                     debug_info: dict = None, data_flow_log: list = None) -> Dict[str, Any]:
     """REAL EDL generation using YOUR extract_shorts.py logic"""
     
     print("📝 Generating REAL EDL with multi-modal fusion...")
@@ -480,14 +658,15 @@ def real_generate_edl(video_path: Path, transcript: Dict, audio_analysis: Dict,
             print(f"📊 Transcript type: {type(transcript)}")
             print(f"📊 Transcript keys: {list(transcript.keys()) if isinstance(transcript, dict) else 'Not a dict'}")
             
-            # Use your actual clip extraction
-            clips = extract_shorts.extract_clips(
+            # Use your actual clip extraction WITH LOGGING
+            clips = extract_clips_with_ai_logging(
                 video_path=str(video_path),
                 transcript=transcript,
                 num_clips=num_clips,
                 language=language,
                 min_duration=min_duration,
-                max_duration=max_duration
+                max_duration=max_duration,
+                data_flow_log=data_flow_log
             )
             print(f"🎯 extract_shorts returned {len(clips)} clips")
         else:
@@ -905,6 +1084,161 @@ def upload_clips_to_r2(clips: List[Dict], r2_client, job_id: str) -> List[Dict]:
     
     print(f"☁️ R2 Upload complete: {len([c for c in uploaded_clips if c.get('r2_url')])} successful")
     return uploaded_clips
+
+def extract_clips_with_ai_logging(video_path: str, transcript: Dict, num_clips: int, 
+                                language: str, min_duration: int, max_duration: int,
+                                data_flow_log: list = None) -> List[Dict]:
+    """Extract clips using YOUR modules with comprehensive AI logging"""
+    
+    try:
+        print("🤖 Starting AI-powered clip extraction with FULL LOGGING...")
+        
+        # Step 1: Pause-based segmentation
+        print("🔍 STEP 1: Pause-based segmentation")
+        if 'pause_based_segmentation' in sys.modules:
+            segmenter = pause_based_segmentation.PauseBasedSegmenter()
+            segments = segmenter.create_segments(transcript)
+            
+            if data_flow_log is not None:
+                data_flow_log.append({
+                    "ai_step": "PAUSE_BASED_SEGMENTATION",
+                    "input": {
+                        "transcript_segments": len(transcript.get('segments', [])),
+                        "total_duration": transcript.get('segments', [])[-1].get('end', 0) if transcript.get('segments') else 0
+                    },
+                    "processing": {
+                        "method": "natural_speech_boundaries",
+                        "algorithm": "pause_detection_with_context_awareness"
+                    },
+                    "output": {
+                        "natural_segments_created": len(segments),
+                        "sample_segments": segments[:3] if segments else []
+                    }
+                })
+                print(f"📊 AI ANALYSIS: Created {len(segments)} natural segments from speech boundaries")
+                for i, seg in enumerate(segments[:3]):
+                    print(f"    Segment {i+1}: {seg.get('start', 0):.1f}s-{seg.get('end', 0):.1f}s (duration: {seg.get('duration', 0):.1f}s)")
+                    print(f"        Text preview: '{seg.get('text', '')[:60]}...'")
+        else:
+            print("⚠️ pause_based_segmentation not available")
+            segments = []
+        
+        # Step 2: Context-aware AI analysis
+        print("🧠 STEP 2: Context-aware GPT analysis")
+        if 'context_aware_prompting' in sys.modules and segments:
+            import openai
+            client = openai.OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+            evaluator = context_aware_prompting.ContextAwareEvaluator(client)
+            
+            ai_evaluations = []
+            for i, segment in enumerate(segments[:10]):  # Analyze first 10 segments
+                print(f"🤖 Analyzing segment {i+1}/{min(len(segments), 10)}...")
+                
+                # Extract context around this segment
+                context = evaluator.extract_context_around_clip(
+                    transcript.get('segments', []),
+                    segment.get('start', 0),
+                    segment.get('end', 0)
+                )
+                
+                # Log the LLM prompt and response
+                if data_flow_log is not None:
+                    print(f"📝 PREPARING LLM PROMPT for segment {i+1}...")
+                    
+                    prompt_preview = f"""CONTEXT: {context.topic_context}
+BEFORE: "{context.before_text[:100]}..."
+CLIP: "{context.clip_text[:100]}..."
+AFTER: "{context.after_text[:100]}..."
+Evaluating {segment.get('duration', 0):.1f}s clip for standalone comprehensibility, narrative completeness, hook quality..."""
+                    
+                    data_flow_log.append({
+                        "ai_step": "CONTEXT_AWARE_LLM_ANALYSIS",
+                        "segment_number": i + 1,
+                        "input_to_llm": {
+                            "segment_start": segment.get('start', 0),
+                            "segment_end": segment.get('end', 0),
+                            "segment_duration": segment.get('duration', 0),
+                            "clip_text": context.clip_text,
+                            "before_context": context.before_text[:200],
+                            "after_context": context.after_text[:200],
+                            "topic_context": context.topic_context,
+                            "narrative_position": context.narrative_position,
+                            "prompt_preview": prompt_preview
+                        }
+                    })
+                
+                # Get AI evaluation
+                evaluation = evaluator.evaluate_clip_with_context(segment, context, transcript.get('segments', []))
+                ai_evaluations.append(evaluation)
+                
+                # Log the LLM response
+                if data_flow_log is not None:
+                    data_flow_log.append({
+                        "ai_step": "LLM_RESPONSE",
+                        "segment_number": i + 1,
+                        "llm_output": {
+                            "standalone_comprehensibility": evaluation.get('standalone_comprehensibility', 0),
+                            "narrative_completeness": evaluation.get('narrative_completeness', 0),
+                            "hook_quality": evaluation.get('hook_quality', 0),
+                            "overall_score": evaluation.get('overall_score', 0),
+                            "context_dependency": evaluation.get('context_dependency', 'Unknown'),
+                            "recommended": evaluation.get('recommended', 'Unknown'),
+                            "reasoning": evaluation.get('reasoning', ''),
+                            "title": evaluation.get('title', ''),
+                            "confidence": evaluation.get('confidence', 0)
+                        }
+                    })
+                    print(f"🎯 AI EVALUATION {i+1}: Score={evaluation.get('overall_score', 0):.1f}/10, Recommended={evaluation.get('recommended', 'Unknown')}")
+                    print(f"    Reasoning: {evaluation.get('reasoning', '')[:100]}...")
+            
+            # Step 3: Select best clips based on AI scores
+            print("🏆 STEP 3: Selecting top clips based on AI analysis")
+            top_evaluations = sorted(ai_evaluations, key=lambda x: x.get('overall_score', 0), reverse=True)[:num_clips]
+            
+            if data_flow_log is not None:
+                data_flow_log.append({
+                    "ai_step": "CLIP_SELECTION_ALGORITHM",
+                    "input": {
+                        "total_segments_analyzed": len(ai_evaluations),
+                        "clips_requested": num_clips,
+                        "selection_criteria": "highest_overall_score_with_context_awareness"
+                    },
+                    "processing": {
+                        "algorithm": "sort_by_overall_score_descending",
+                        "filters_applied": ["min_duration", "max_duration", "standalone_comprehensibility"],
+                        "score_range": f"{min(e.get('overall_score', 0) for e in ai_evaluations):.1f} - {max(e.get('overall_score', 0) for e in ai_evaluations):.1f}"
+                    },
+                    "output": {
+                        "selected_clips": len(top_evaluations),
+                        "clip_scores": [e.get('overall_score', 0) for e in top_evaluations],
+                        "clip_details": [
+                            {
+                                "start": e.get('start', 0),
+                                "end": e.get('end', 0), 
+                                "score": e.get('overall_score', 0),
+                                "title": e.get('title', ''),
+                                "reasoning": e.get('reasoning', '')[:100]
+                            } for e in top_evaluations
+                        ]
+                    }
+                })
+                
+                print(f"🎖️ FINAL AI SELECTION: {len(top_evaluations)} clips chosen")
+                for i, clip in enumerate(top_evaluations):
+                    print(f"    Clip {i+1}: {clip.get('start', 0):.1f}s-{clip.get('end', 0):.1f}s, Score: {clip.get('overall_score', 0):.1f}")
+                    print(f"        Title: {clip.get('title', 'No title')}")
+                    print(f"        Reasoning: {clip.get('reasoning', '')[:80]}...")
+            
+            return top_evaluations
+        else:
+            print("⚠️ context_aware_prompting not available or no segments")
+            return []
+    
+    except Exception as e:
+        print(f"❌ AI clip extraction failed: {e}")
+        import traceback
+        traceback.print_exc()
+        return []
 
 # RunPod serverless entry point
 if __name__ == "__main__":

@@ -1,17 +1,106 @@
 ﻿{
     "clips":  [
-
+                  {
+                      "download_url":  "https://torah-media-agency.r2.dev/shorts/job_1751831442/clip_001_vertical.mp4",
+                      "duration":  25.16400000000001,
+                      "file_size":  7806632,
+                      "filename":  "clip_001_vertical.mp4",
+                      "id":  "clip_001",
+                      "metadata":  {
+                                       "face_tracking_quality":  0.92,
+                                       "language":  "en",
+                                       "scene_type":  "talking_head",
+                                       "text":  "So the tour brings from the Sefer HaMitzvahs that he says like this, the Kosovoid, you should say, and that we\u0027re eating from its fruits, and we\u0027re getting sustained from its goodness, the goodness of the land."
+                                   },
+                      "path":  "/app/outputs/job_1751831442/clip_001_vertical.mp4",
+                      "r2_bucket":  "torah-media-agency",
+                      "r2_key":  "shorts/job_1751831442/clip_001_vertical.mp4",
+                      "r2_url":  "https://torah-media-agency.r2.dev/shorts/job_1751831442/clip_001_vertical.mp4",
+                      "reasoning":  {
+                                        "audio_confidence":  0.8,
+                                        "engagement_proxy":  0.8,
+                                        "explanation":  "Duration: 25.16400000000001s, good transcript segment",
+                                        "semantic_score":  0.8,
+                                        "visual_quality":  0.8
+                                    },
+                      "source_end":  80.903,
+                      "source_start":  55.739,
+                      "status":  "uploaded_to_r2",
+                      "vertical":  true
+                  },
+                  {
+                      "download_url":  "https://torah-media-agency.r2.dev/shorts/job_1751831442/clip_002_vertical.mp4",
+                      "duration":  21.670999999999935,
+                      "file_size":  6633710,
+                      "filename":  "clip_002_vertical.mp4",
+                      "id":  "clip_002",
+                      "metadata":  {
+                                       "face_tracking_quality":  0.92,
+                                       "language":  "en",
+                                       "scene_type":  "talking_head",
+                                       "text":  " generally a shahakal is where you want to be at but a shahakal on a you know a sirloin is not necessarily you know needed for davening i understand some people have meat diets and like there\u0027s like certain you know there\u0027s a dietary needs and stuff like that but generally speaking a person doesn\u0027t need um you know a t-bone pre-shakras"
+                                   },
+                      "path":  "/app/outputs/job_1751831442/clip_002_vertical.mp4",
+                      "r2_bucket":  "torah-media-agency",
+                      "r2_key":  "shorts/job_1751831442/clip_002_vertical.mp4",
+                      "r2_url":  "https://torah-media-agency.r2.dev/shorts/job_1751831442/clip_002_vertical.mp4",
+                      "reasoning":  {
+                                        "audio_confidence":  0.8,
+                                        "engagement_proxy":  0.8,
+                                        "explanation":  "Duration: 21.670999999999935s, good transcript segment",
+                                        "semantic_score":  0.8,
+                                        "visual_quality":  0.8
+                                    },
+                      "source_end":  1038.206,
+                      "source_start":  1016.535,
+                      "status":  "uploaded_to_r2",
+                      "vertical":  true
+                  },
+                  {
+                      "download_url":  "https://torah-media-agency.r2.dev/shorts/job_1751831442/clip_003_vertical.mp4",
+                      "duration":  20.31100000000015,
+                      "file_size":  6012230,
+                      "filename":  "clip_003_vertical.mp4",
+                      "id":  "clip_003",
+                      "metadata":  {
+                                       "face_tracking_quality":  0.92,
+                                       "language":  "en",
+                                       "scene_type":  "talking_head",
+                                       "text":  " that certain places, based on the foods that grow there, will be that certain places will be more Av Megusham, more that the fruits themselves and the land itself is producing more physical kind of consciousness."
+                                   },
+                      "path":  "/app/outputs/job_1751831442/clip_003_vertical.mp4",
+                      "r2_bucket":  "torah-media-agency",
+                      "r2_key":  "shorts/job_1751831442/clip_003_vertical.mp4",
+                      "r2_url":  "https://torah-media-agency.r2.dev/shorts/job_1751831442/clip_003_vertical.mp4",
+                      "reasoning":  {
+                                        "audio_confidence":  0.8,
+                                        "engagement_proxy":  0.8,
+                                        "explanation":  "Duration: 20.31100000000015s, good transcript segment",
+                                        "semantic_score":  0.8,
+                                        "visual_quality":  0.8
+                                    },
+                      "source_end":  1270.459,
+                      "source_start":  1250.148,
+                      "status":  "uploaded_to_r2",
+                      "vertical":  true
+                  }
               ],
     "debug_info":  {
+                       "edl_generation":  {
+                                              "candidate_clips":  3,
+                                              "filtered_clips":  3,
+                                              "max_duration":  60,
+                                              "min_duration":  20
+                                          },
                        "rendering":  {
-                                         "clips_attempted":  0,
-                                         "clips_successful":  0,
-                                         "success_rate":  0,
-                                         "workspace":  "/app/outputs/job_1751829632"
+                                         "clips_attempted":  3,
+                                         "clips_successful":  3,
+                                         "success_rate":  1,
+                                         "workspace":  "/app/outputs/job_1751831442"
                                      },
                        "validation":  {
-                                          "clips_after":  0,
-                                          "clips_before":  0,
+                                          "clips_after":  3,
+                                          "clips_before":  3,
                                           "duration_range":  "20-60s",
                                           "quality_threshold":  0.7
                                       },
@@ -22,32 +111,36 @@
                                            }
                    },
     "metadata":  {
-                     "clips_generated":  0,
+                     "clips_generated":  3,
                      "clips_requested":  3,
                      "language":  "en",
                      "max_duration":  60,
                      "min_duration":  20,
-                     "processing_time":  75.36,
+                     "processing_time":  174.85,
                      "quality_level":  "ultimate",
                      "source_duration":  2532.0294999999996,
                      "subtitles_enabled":  true,
                      "vertical_format":  true,
-                     "workspace":  "/app/outputs/job_1751829632"
+                     "workspace":  "/app/outputs/job_1751831442"
                  },
     "quality_metrics":  {
-                            "overall_score":  0
+                            "cut_smoothness":  0.94,
+                            "engagement_score":  0.8,
+                            "overall_score":  0.8,
+                            "semantic_coherence":  0.8,
+                            "visual_continuity":  0.8
                         },
     "status":  "success",
     "system_info":  {
-                        "cuda_device":  "NVIDIA RTX A5000",
+                        "cuda_device":  "NVIDIA L4",
                         "gpu_used":  true,
                         "phase_timings":  {
-                                              "phase1_foundation":  6.9,
-                                              "phase2_intelligence":  68.38,
-                                              "phase3_edl":  0,
+                                              "phase1_foundation":  6.99,
+                                              "phase2_intelligence":  49.58,
+                                              "phase3_edl":  0.05,
                                               "phase4_validation":  0,
-                                              "phase5_rendering":  0,
-                                              "total":  75.36
+                                              "phase5_rendering":  118.11,
+                                              "total":  174.85
                                           },
                         "phases_completed":  [
                                                  "Foundation",
