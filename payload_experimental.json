@@ -1,0 +1,13 @@
+{
+  "input": {
+    "video_url": "https://pub-df98462245734d62b0041de219b0d8bd.r2.dev/videos/susUUninSWE.mp4",
+    "num_clips": 3,
+    "language": "en",
+    "vertical": true,
+    "subtitles": true,
+    "quality_level": "ultimate",
+    "debug_mode": true,
+    "min_duration": 25,
+    "max_duration": 60
+  }
+}
