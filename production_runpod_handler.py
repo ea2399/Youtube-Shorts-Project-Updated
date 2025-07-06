@@ -181,16 +181,33 @@ def runpod_handler(event):
         # PREPARE RESULTS WITH FILE ACCESS
         # =================================================================
         
-        # Copy files to accessible location and provide download URLs
+        # Encode video files as base64 for serverless return
         accessible_clips = []
         for clip in clips:
-            if os.path.exists(clip.get('path', '')):
-                # Files remain in /app/outputs which should be persistent
-                accessible_clips.append({
-                    **clip,
-                    'accessible_path': str(clip['path']),
-                    'file_size': os.path.getsize(clip['path']) if os.path.exists(clip['path']) else 0
-                })
+            clip_path = clip.get('path', '')
+            if os.path.exists(clip_path):
+                try:
+                    # Read video file and encode as base64
+                    with open(clip_path, 'rb') as video_file:
+                        video_data = video_file.read()
+                        import base64
+                        video_base64 = base64.b64encode(video_data).decode('utf-8')
+                    
+                    accessible_clips.append({
+                        **clip,
+                        'file_size': len(video_data),
+                        'video_data': video_base64,  # Base64 encoded video
+                        'download_filename': clip['filename'],
+                        'mime_type': 'video/mp4'
+                    })
+                    print(f"📦 Encoded clip {clip['id']}: {len(video_data)/1024/1024:.1f}MB")
+                    
+                except Exception as e:
+                    print(f"❌ Failed to encode {clip['id']}: {e}")
+                    accessible_clips.append({
+                        **clip,
+                        'error': f"Failed to encode: {e}"
+                    })
         
         # Comprehensive result with all debug info
         result = {

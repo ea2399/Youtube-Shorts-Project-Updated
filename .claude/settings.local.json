@@ -23,7 +23,8 @@
       "Bash(pip install:*)",
       "Bash(ls:*)",
       "Bash(./pre_build_check.sh:*)",
-      "Bash(./validate_deps.sh)"
+      "Bash(./validate_deps.sh)",
+      "Bash(git add:*)"
     ],
     "deny": []
   }
