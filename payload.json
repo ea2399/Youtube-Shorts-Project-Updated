@@ -1,13 +1,18 @@
 {
   "input": {
-    "video_url": "https://pub-df98462245734d62b0041de219b0d8bd.r2.dev/videos/susUUninSWE.mp4",
-    "num_clips": 5,
+    "video_url": "https://pub-df98462245734d62b0041de219b0d8bd.r2.dev/videos/64627bda-da5d-4eb5-ad2c-28024db51808.mp4",
+    "transcript_json": "https://pub-df98462245734d62b0041de219b0d8bd.r2.dev/transcripts/64627bda-da5d-4eb5-ad2c-28024db51808/64627bda-da5d-4eb5-ad2c-28024db51808.json",
+    "num_clips": 3,
     "language": "en",
     "vertical": true,
     "subtitles": true,
-    "quality_level": "high",
+    "quality_level": "ultimate",
     "debug_mode": true,
-    "min_duration": 15,
-    "max_duration": 90
+    "min_duration": 20,
+    "max_duration": 60,
+    "use_pause_segmentation": true,
+    "use_context_aware_prompting": true,
+    "use_filler_detection": true,
+    "use_face_tracking": true
   }
 }

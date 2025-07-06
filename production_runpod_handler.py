@@ -112,13 +112,28 @@ def runpod_handler(event):
         visual_analysis = real_visual_intelligence(video_path, debug_info)
         print(f"✅ Visual processed: {visual_analysis.get('scene_count', 0)} scenes")
         
-        # REAL Transcript generation using YOUR transcribe.py
+        # REAL Transcript processing - REQUIRE provided transcript for advanced features
         if transcript_json:
-            transcript = transcript_json
-            print("✅ Using provided transcript")
+            if isinstance(transcript_json, str):
+                # URL provided - fetch it
+                print(f"📥 Fetching transcript from URL: {transcript_json}")
+                try:
+                    import requests
+                    response = requests.get(transcript_json, timeout=30)
+                    response.raise_for_status()
+                    transcript = response.json()
+                    print(f"✅ Fetched transcript: {len(transcript.get('segments', []))} segments")
+                except Exception as e:
+                    print(f"❌ Failed to fetch transcript: {e}")
+                    raise Exception(f"Could not fetch transcript from URL: {transcript_json}")
+            else:
+                # Direct JSON object provided
+                transcript = transcript_json
+                print(f"✅ Using provided transcript: {len(transcript.get('segments', []))} segments")
+            print("✅ WhisperX transcript ready for advanced processing")
         else:
-            transcript = real_generate_transcript(video_path, language, debug_info)
-            print(f"✅ Generated transcript: {len(transcript.get('segments', []))} segments")
+            print("❌ No transcript provided - Phase 1-5 processing requires WhisperX transcript")
+            raise Exception("transcript_json is required for pause-based segmentation and context-aware prompting")
         
         phase2_time = time.time() - phase2_start
         print(f"⏱️ Phase 2 completed in {phase2_time:.1f}s")
@@ -461,6 +476,10 @@ def real_generate_edl(video_path: Path, transcript: Dict, audio_analysis: Dict,
     # Use YOUR existing extract_shorts logic
     try:
         if 'extract_shorts' in sys.modules:
+            print("🎯 Using REAL extract_shorts.py module")
+            print(f"📊 Transcript type: {type(transcript)}")
+            print(f"📊 Transcript keys: {list(transcript.keys()) if isinstance(transcript, dict) else 'Not a dict'}")
+            
             # Use your actual clip extraction
             clips = extract_shorts.extract_clips(
                 video_path=str(video_path),
@@ -470,7 +489,9 @@ def real_generate_edl(video_path: Path, transcript: Dict, audio_analysis: Dict,
                 min_duration=min_duration,
                 max_duration=max_duration
             )
+            print(f"🎯 extract_shorts returned {len(clips)} clips")
         else:
+            print("⚠️ extract_shorts.py not available - using fallback")
             clips = fallback_clip_extraction(transcript, audio_analysis, visual_analysis, 
                                            num_clips, min_duration, max_duration)
         
