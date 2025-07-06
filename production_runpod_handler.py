@@ -22,26 +22,37 @@ from botocore.config import Config
 sys.path.insert(0, '/app')
 
 # Import REAL processing modules from your existing codebase
+# FORCE IMPORT YOUR MODULES - Don't fall back
+print("🔍 Attempting to import AI processing modules...")
+import_status = {}
+
+# Core processing imports
 try:
-    # Core processing imports
     import torch
     import cv2
     import numpy as np
     from datetime import datetime
-    
-    # Import YOUR actual processing modules
-    import download
-    import transcribe  
-    import extract_shorts
-    import cut_clips
-    import reframe
-    import normalize
-    import pause_based_segmentation
-    import context_aware_prompting
-    
+    import_status['core'] = 'success'
 except ImportError as e:
-    print(f"⚠️ Import error: {e}")
-    print("🔄 Falling back to basic implementations")
+    import_status['core'] = f'failed: {e}'
+    print(f"❌ Core imports failed: {e}")
+
+# Import YOUR actual processing modules one by one
+modules_to_import = [
+    'download', 'transcribe', 'extract_shorts', 'cut_clips', 
+    'reframe', 'normalize', 'pause_based_segmentation', 'context_aware_prompting'
+]
+
+for module_name in modules_to_import:
+    try:
+        globals()[module_name] = __import__(module_name)
+        import_status[module_name] = 'success'
+        print(f"✅ Successfully imported {module_name}")
+    except ImportError as e:
+        import_status[module_name] = f'failed: {e}'
+        print(f"❌ Failed to import {module_name}: {e}")
+        
+print(f"📊 Import Status: {import_status}")
 
 def runpod_handler(event):
     """PRODUCTION handler with REAL Phase 1-5 processing"""
@@ -653,8 +664,9 @@ def real_generate_edl(video_path: Path, transcript: Dict, audio_analysis: Dict,
     
     # Use YOUR existing extract_shorts logic
     try:
-        if 'extract_shorts' in sys.modules:
-            print("🎯 Using REAL extract_shorts.py module")
+        # FORCE USE OF AI MODULES - No fallback allowed
+        if import_status.get('pause_based_segmentation') == 'success' and import_status.get('context_aware_prompting') == 'success':
+            print("🤖 Using REAL AI modules for clip extraction")
             print(f"📊 Transcript type: {type(transcript)}")
             print(f"📊 Transcript keys: {list(transcript.keys()) if isinstance(transcript, dict) else 'Not a dict'}")
             
@@ -668,11 +680,11 @@ def real_generate_edl(video_path: Path, transcript: Dict, audio_analysis: Dict,
                 max_duration=max_duration,
                 data_flow_log=data_flow_log
             )
-            print(f"🎯 extract_shorts returned {len(clips)} clips")
+            print(f"🎯 AI extraction returned {len(clips)} clips")
         else:
-            print("⚠️ extract_shorts.py not available - using fallback")
-            clips = fallback_clip_extraction(transcript, audio_analysis, visual_analysis, 
-                                           num_clips, min_duration, max_duration)
+            print(f"❌ CRITICAL: AI modules not available - Import status: {import_status}")
+            print("❌ Cannot proceed without pause_based_segmentation and context_aware_prompting")
+            raise Exception("AI modules required for processing are not available")
         
         timeline = []
         for i, clip in enumerate(clips):
@@ -1095,7 +1107,7 @@ def extract_clips_with_ai_logging(video_path: str, transcript: Dict, num_clips: 
         
         # Step 1: Pause-based segmentation
         print("🔍 STEP 1: Pause-based segmentation")
-        if 'pause_based_segmentation' in sys.modules:
+        if import_status.get('pause_based_segmentation') == 'success':
             segmenter = pause_based_segmentation.PauseBasedSegmenter()
             segments = segmenter.create_segments(transcript)
             
@@ -1125,7 +1137,7 @@ def extract_clips_with_ai_logging(video_path: str, transcript: Dict, num_clips: 
         
         # Step 2: Context-aware AI analysis
         print("🧠 STEP 2: Context-aware GPT analysis")
-        if 'context_aware_prompting' in sys.modules and segments:
+        if import_status.get('context_aware_prompting') == 'success' and segments:
             import openai
             client = openai.OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
             evaluator = context_aware_prompting.ContextAwareEvaluator(client)
