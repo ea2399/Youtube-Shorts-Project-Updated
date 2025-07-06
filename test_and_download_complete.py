@@ -238,10 +238,12 @@ def test_and_download_complete():
                                 for i, clip in enumerate(clips, 1):
                                     try:
                                         video_data_b64 = clip.get('video_data')
+                                        video_chunks = clip.get('video_chunks')
                                         filename = clip.get('download_filename', f'clip_{i:03d}.mp4')
                                         expected_size = clip.get('file_size', 0)
                                         
                                         if video_data_b64:
+                                            # Single base64 encoded file
                                             print(f"\n📥 Downloading {filename}...")
                                             
                                             # Decode base64 video data
@@ -263,10 +265,45 @@ def test_and_download_complete():
                                             print(f"      Path: {file_path}")
                                             print(f"      Time range: {clip.get('source_start', 'N/A')}s - {clip.get('source_end', 'N/A')}s")
                                             
+                                        elif video_chunks:
+                                            # Chunked base64 encoded file
+                                            chunk_count = clip.get('chunk_count', len(video_chunks))
+                                            print(f"\n📥 Downloading {filename} ({chunk_count} chunks)...")
+                                            
+                                            # Decode and combine chunks
+                                            video_data = b''
+                                            for j, chunk_b64 in enumerate(video_chunks, 1):
+                                                chunk_data = base64.b64decode(chunk_b64)
+                                                video_data += chunk_data
+                                                if j % 5 == 0:  # Show progress every 5 chunks
+                                                    print(f"      Processing chunk {j}/{chunk_count}...")
+                                            
+                                            # Save to local file
+                                            file_path = downloads_dir / filename
+                                            with open(file_path, 'wb') as f:
+                                                f.write(video_data)
+                                            
+                                            # Verify file
+                                            actual_size = os.path.getsize(file_path)
+                                            saved_files.append(str(file_path))
+                                            total_size += actual_size
+                                            
+                                            print(f"   ✅ {filename}")
+                                            print(f"      Duration: {clip.get('duration', 'N/A')}s")
+                                            print(f"      Size: {actual_size/1024/1024:.1f}MB")
+                                            print(f"      Path: {file_path}")
+                                            print(f"      Chunks: {chunk_count}")
+                                            print(f"      Time range: {clip.get('source_start', 'N/A')}s - {clip.get('source_end', 'N/A')}s")
+                                            
                                         else:
-                                            print(f"\n❌ {filename} - No video data available")
-                                            error = clip.get('error', 'No video_data field found')
-                                            print(f"   Error: {error}")
+                                            # No video data available
+                                            status = clip.get('status', 'unknown')
+                                            note = clip.get('note', 'No video data available')
+                                            print(f"\n❌ {filename} - {status}")
+                                            print(f"   Note: {note}")
+                                            error = clip.get('error', '')
+                                            if error:
+                                                print(f"   Error: {error}")
                                             
                                     except Exception as e:
                                         print(f"\n❌ Error downloading clip {i}: {e}")

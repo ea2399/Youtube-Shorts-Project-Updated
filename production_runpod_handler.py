@@ -181,32 +181,72 @@ def runpod_handler(event):
         # PREPARE RESULTS WITH FILE ACCESS
         # =================================================================
         
-        # Encode video files as base64 for serverless return
+        # Handle video files with smart size-based approach
         accessible_clips = []
         for clip in clips:
             clip_path = clip.get('path', '')
             if os.path.exists(clip_path):
                 try:
-                    # Read video file and encode as base64
-                    with open(clip_path, 'rb') as video_file:
-                        video_data = video_file.read()
-                        import base64
-                        video_base64 = base64.b64encode(video_data).decode('utf-8')
+                    file_size = os.path.getsize(clip_path)
                     
-                    accessible_clips.append({
-                        **clip,
-                        'file_size': len(video_data),
-                        'video_data': video_base64,  # Base64 encoded video
-                        'download_filename': clip['filename'],
-                        'mime_type': 'video/mp4'
-                    })
-                    print(f"📦 Encoded clip {clip['id']}: {len(video_data)/1024/1024:.1f}MB")
+                    # Smart approach: smaller files use base64, larger files get chunked
+                    if file_size < 3 * 1024 * 1024:  # 3MB limit for base64
+                        # Read video file and encode as base64
+                        with open(clip_path, 'rb') as video_file:
+                            video_data = video_file.read()
+                            import base64
+                            video_base64 = base64.b64encode(video_data).decode('utf-8')
+                        
+                        accessible_clips.append({
+                            **clip,
+                            'file_size': file_size,
+                            'video_data': video_base64,  # Base64 encoded video
+                            'download_filename': clip['filename'],
+                            'mime_type': 'video/mp4'
+                        })
+                        print(f"📦 Encoded clip {clip['id']}: {file_size/1024/1024:.1f}MB")
+                        
+                    elif file_size < 8 * 1024 * 1024:  # 8MB limit for chunked base64
+                        # Read video file in chunks and encode
+                        chunk_size = 1024 * 1024  # 1MB chunks
+                        video_chunks = []
+                        
+                        with open(clip_path, 'rb') as video_file:
+                            while True:
+                                chunk = video_file.read(chunk_size)
+                                if not chunk:
+                                    break
+                                import base64
+                                chunk_b64 = base64.b64encode(chunk).decode('utf-8')
+                                video_chunks.append(chunk_b64)
+                        
+                        accessible_clips.append({
+                            **clip,
+                            'file_size': file_size,
+                            'video_chunks': video_chunks,  # Chunked base64 data
+                            'chunk_count': len(video_chunks),
+                            'download_filename': clip['filename'],
+                            'mime_type': 'video/mp4'
+                        })
+                        print(f"📦 Chunked clip {clip['id']}: {file_size/1024/1024:.1f}MB ({len(video_chunks)} chunks)")
+                        
+                    else:
+                        # File too large - provide metadata and suggest alternative delivery
+                        accessible_clips.append({
+                            **clip,
+                            'file_size': file_size,
+                            'download_filename': clip['filename'],
+                            'mime_type': 'video/mp4',
+                            'status': 'too_large_for_response',
+                            'note': f"File ({file_size/1024/1024:.1f}MB) exceeds response limits. Use alternative delivery method."
+                        })
+                        print(f"📋 Clip {clip['id']} metadata only: {file_size/1024/1024:.1f}MB (too large)")
                     
                 except Exception as e:
-                    print(f"❌ Failed to encode {clip['id']}: {e}")
+                    print(f"❌ Failed to process {clip['id']}: {e}")
                     accessible_clips.append({
                         **clip,
-                        'error': f"Failed to encode: {e}"
+                        'error': f"Failed to process: {e}"
                     })
         
         # Comprehensive result with all debug info
