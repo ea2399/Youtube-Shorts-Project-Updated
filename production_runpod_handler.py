@@ -462,14 +462,23 @@ def real_download_video(video_url: str, workspace: Path, debug_info: dict = None
     try:
         # Use YOUR existing download module
         if 'download' in sys.modules:
+            # Call your actual download function with workspace as project_path
+            result = download.download_video(video_url, workspace)
+            # The download.py creates "downloads/full.mp4" inside workspace
+            expected_path = workspace / "downloads" / "full.mp4"
+            
+            # Copy to our expected location
             output_path = workspace / "source_video.mp4"
-            # Call your actual download function
-            result = download.download_video(video_url, str(output_path))
+            if expected_path.exists():
+                import shutil
+                shutil.copy2(expected_path, output_path)
+                
             if debug_info is not None:
                 debug_info['download'] = {
                     'url': video_url,
                     'output_path': str(output_path),
-                    'success': result is not None
+                    'success': output_path.exists(),
+                    'download_result': str(result) if result else None
                 }
             return output_path if output_path.exists() else None
         else:
