@@ -640,17 +640,8 @@ def real_render_clips(video_path: Path, edl: Dict, workspace: Path, vertical: bo
             clip_filename = f"clip_{i+1:03d}_{'vertical' if vertical else 'horizontal'}.mp4"
             clip_path = workspace / clip_filename
             
-            # Use YOUR cut_clips module if available
-            if 'cut_clips' in sys.modules:
-                success = cut_clips.cut_clip(
-                    input_video=str(video_path),
-                    output_path=str(clip_path),
-                    start_time=start_time,
-                    duration=duration,
-                    vertical=vertical
-                )
-            else:
-                success = fallback_render_clip(video_path, clip_path, start_time, duration, vertical)
+            # Always use the improved fallback rendering with smart GPU detection
+            success = fallback_render_clip(video_path, clip_path, start_time, duration, vertical)
             
             if success and clip_path.exists():
                 render_successes += 1
@@ -694,36 +685,80 @@ def real_render_clips(video_path: Path, edl: Dict, workspace: Path, vertical: bo
     
     return clips
 
+def detect_nvenc_support() -> bool:
+    """Test if NVENC is actually available"""
+    try:
+        # Quick test with minimal FFmpeg command
+        test_cmd = "ffmpeg -f lavfi -i testsrc=duration=1:size=320x240:rate=1 -c:v h264_nvenc -f null - 2>/dev/null"
+        result = os.system(test_cmd)
+        return result == 0
+    except:
+        return False
+
 def fallback_render_clip(video_path: Path, output_path: Path, start_time: float, 
                         duration: float, vertical: bool) -> bool:
-    """Fallback FFmpeg rendering"""
+    """Smart FFmpeg rendering with GPU fallback"""
     try:
-        cmd_parts = [
-            "ffmpeg",
-            "-i", f"'{video_path}'",
-            "-ss", str(start_time),
-            "-t", str(duration),
-        ]
+        # Test encoding strategies in order of preference
+        encoding_strategies = []
         
-        # GPU acceleration if available
+        # Strategy 1: Try NVENC if CUDA is available
         if torch.cuda.is_available():
-            cmd_parts.extend(["-c:v", "h264_nvenc", "-preset", "fast"])
+            print(f"🔍 Testing NVENC availability...")
+            if detect_nvenc_support():
+                print(f"✅ NVENC available - using GPU acceleration")
+                encoding_strategies.append(("h264_nvenc", "fast"))
+            else:
+                print(f"❌ NVENC not available - falling back to CPU")
         
-        # Vertical reframing
-        if vertical:
-            cmd_parts.extend(["-vf", "scale=720:1280:force_original_aspect_ratio=increase,crop=720:1280"])
+        # Strategy 2: High-performance CPU encoding
+        encoding_strategies.append(("libx264", "veryfast"))
         
-        cmd_parts.extend([
-            "-c:a", "aac",
-            "-b:a", "128k",
-            f"'{output_path}'",
-            "-y"
-        ])
+        # Strategy 3: Ultra-fast CPU fallback
+        encoding_strategies.append(("libx264", "ultrafast"))
         
-        cmd = " ".join(cmd_parts)
-        result = os.system(cmd)
+        # Try each strategy until one works
+        for i, (encoder, preset) in enumerate(encoding_strategies, 1):
+            print(f"🎬 Attempt {i}: {encoder} with {preset} preset")
+            
+            cmd_parts = [
+                "ffmpeg",
+                "-i", f"'{video_path}'",
+                "-ss", str(start_time),
+                "-t", str(duration),
+                "-c:v", encoder,
+                "-preset", preset
+            ]
+            
+            # Vertical reframing
+            if vertical:
+                cmd_parts.extend(["-vf", "scale=720:1280:force_original_aspect_ratio=increase,crop=720:1280"])
+            
+            # Audio settings
+            cmd_parts.extend([
+                "-c:a", "aac",
+                "-b:a", "128k",
+                f"'{output_path}'",
+                "-y"
+            ])
+            
+            cmd = " ".join(cmd_parts)
+            print(f"   Command: {' '.join(cmd_parts[:8])}...")
+            
+            result = os.system(cmd)
+            
+            if result == 0 and output_path.exists():
+                file_size = os.path.getsize(output_path)
+                print(f"   ✅ Success with {encoder}: {file_size/1024/1024:.1f}MB")
+                return True
+            else:
+                print(f"   ❌ Failed with {encoder}")
+                # Remove failed file if it exists
+                if output_path.exists():
+                    os.remove(output_path)
         
-        return result == 0 and output_path.exists()
+        print(f"❌ All encoding strategies failed")
+        return False
         
     except Exception as e:
         print(f"FFmpeg error: {e}")
