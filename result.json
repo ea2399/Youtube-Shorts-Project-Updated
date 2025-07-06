@@ -1,0 +1,204 @@
+﻿{
+    "clips":  [
+                  {
+                      "download_filename":  "clip_001_vertical.mp4",
+                      "duration":  45,
+                      "file_size":  12446404,
+                      "filename":  "clip_001_vertical.mp4",
+                      "id":  "clip_001",
+                      "metadata":  {
+                                       "face_tracking_quality":  0.92,
+                                       "language":  "en",
+                                       "scene_type":  "talking_head",
+                                       "text":  "Segment 1: Content from 0s to 45s"
+                                   },
+                      "mime_type":  "video/mp4",
+                      "note":  "File (11.9MB) exceeds response limits. Use alternative delivery method.",
+                      "path":  "/app/outputs/job_1751826411/clip_001_vertical.mp4",
+                      "reasoning":  {
+                                        "audio_confidence":  0.8,
+                                        "engagement_proxy":  0.8,
+                                        "explanation":  "Duration: 45s, good transcript segment",
+                                        "semantic_score":  0.8,
+                                        "visual_quality":  0.8
+                                    },
+                      "source_end":  45,
+                      "source_start":  0,
+                      "status":  "too_large_for_response",
+                      "vertical":  true
+                  },
+                  {
+                      "download_filename":  "clip_002_vertical.mp4",
+                      "duration":  45,
+                      "file_size":  12764175,
+                      "filename":  "clip_002_vertical.mp4",
+                      "id":  "clip_002",
+                      "metadata":  {
+                                       "face_tracking_quality":  0.92,
+                                       "language":  "en",
+                                       "scene_type":  "talking_head",
+                                       "text":  "Segment 2: Content from 45s to 90s"
+                                   },
+                      "mime_type":  "video/mp4",
+                      "note":  "File (12.2MB) exceeds response limits. Use alternative delivery method.",
+                      "path":  "/app/outputs/job_1751826411/clip_002_vertical.mp4",
+                      "reasoning":  {
+                                        "audio_confidence":  0.8,
+                                        "engagement_proxy":  0.8,
+                                        "explanation":  "Duration: 45s, good transcript segment",
+                                        "semantic_score":  0.8,
+                                        "visual_quality":  0.8
+                                    },
+                      "source_end":  90,
+                      "source_start":  45,
+                      "status":  "too_large_for_response",
+                      "vertical":  true
+                  },
+                  {
+                      "download_filename":  "clip_003_vertical.mp4",
+                      "duration":  45,
+                      "file_size":  12612038,
+                      "filename":  "clip_003_vertical.mp4",
+                      "id":  "clip_003",
+                      "metadata":  {
+                                       "face_tracking_quality":  0.92,
+                                       "language":  "en",
+                                       "scene_type":  "talking_head",
+                                       "text":  "Segment 3: Content from 90s to 135s"
+                                   },
+                      "mime_type":  "video/mp4",
+                      "note":  "File (12.0MB) exceeds response limits. Use alternative delivery method.",
+                      "path":  "/app/outputs/job_1751826411/clip_003_vertical.mp4",
+                      "reasoning":  {
+                                        "audio_confidence":  0.8,
+                                        "engagement_proxy":  0.8,
+                                        "explanation":  "Duration: 45s, good transcript segment",
+                                        "semantic_score":  0.8,
+                                        "visual_quality":  0.8
+                                    },
+                      "source_end":  135,
+                      "source_start":  90,
+                      "status":  "too_large_for_response",
+                      "vertical":  true
+                  },
+                  {
+                      "download_filename":  "clip_004_vertical.mp4",
+                      "duration":  45,
+                      "file_size":  12403631,
+                      "filename":  "clip_004_vertical.mp4",
+                      "id":  "clip_004",
+                      "metadata":  {
+                                       "face_tracking_quality":  0.92,
+                                       "language":  "en",
+                                       "scene_type":  "talking_head",
+                                       "text":  "Segment 4: Content from 135s to 180s"
+                                   },
+                      "mime_type":  "video/mp4",
+                      "note":  "File (11.8MB) exceeds response limits. Use alternative delivery method.",
+                      "path":  "/app/outputs/job_1751826411/clip_004_vertical.mp4",
+                      "reasoning":  {
+                                        "audio_confidence":  0.8,
+                                        "engagement_proxy":  0.8,
+                                        "explanation":  "Duration: 45s, good transcript segment",
+                                        "semantic_score":  0.8,
+                                        "visual_quality":  0.8
+                                    },
+                      "source_end":  180,
+                      "source_start":  135,
+                      "status":  "too_large_for_response",
+                      "vertical":  true
+                  },
+                  {
+                      "download_filename":  "clip_005_vertical.mp4",
+                      "duration":  45,
+                      "file_size":  12377054,
+                      "filename":  "clip_005_vertical.mp4",
+                      "id":  "clip_005",
+                      "metadata":  {
+                                       "face_tracking_quality":  0.92,
+                                       "language":  "en",
+                                       "scene_type":  "talking_head",
+                                       "text":  "Segment 5: Content from 180s to 225s"
+                                   },
+                      "mime_type":  "video/mp4",
+                      "note":  "File (11.8MB) exceeds response limits. Use alternative delivery method.",
+                      "path":  "/app/outputs/job_1751826411/clip_005_vertical.mp4",
+                      "reasoning":  {
+                                        "audio_confidence":  0.8,
+                                        "engagement_proxy":  0.8,
+                                        "explanation":  "Duration: 45s, good transcript segment",
+                                        "semantic_score":  0.8,
+                                        "visual_quality":  0.8
+                                    },
+                      "source_end":  225,
+                      "source_start":  180,
+                      "status":  "too_large_for_response",
+                      "vertical":  true
+                  }
+              ],
+    "debug_info":  {
+                       "edl_generation":  {
+                                              "candidate_clips":  5,
+                                              "filtered_clips":  5,
+                                              "max_duration":  90,
+                                              "min_duration":  15
+                                          },
+                       "rendering":  {
+                                         "clips_attempted":  5,
+                                         "clips_successful":  5,
+                                         "success_rate":  1,
+                                         "workspace":  "/app/outputs/job_1751826411"
+                                     },
+                       "validation":  {
+                                          "clips_after":  5,
+                                          "clips_before":  5,
+                                          "duration_range":  "15-90s",
+                                          "quality_threshold":  0.7
+                                      },
+                       "visual_analysis":  {
+                                               "fps":  23.976023976023978,
+                                               "method":  "scenedetect",
+                                               "scenes_detected":  0
+                                           }
+                   },
+    "metadata":  {
+                     "clips_generated":  5,
+                     "clips_requested":  5,
+                     "language":  "en",
+                     "max_duration":  90,
+                     "min_duration":  15,
+                     "processing_time":  44.95,
+                     "quality_level":  "high",
+                     "source_duration":  1210.2089999999998,
+                     "subtitles_enabled":  true,
+                     "vertical_format":  true,
+                     "workspace":  "/app/outputs/job_1751826411"
+                 },
+    "quality_metrics":  {
+                            "cut_smoothness":  0.94,
+                            "engagement_score":  0.8,
+                            "overall_score":  0.8,
+                            "semantic_coherence":  0.8,
+                            "visual_continuity":  0.8
+                        },
+    "status":  "success",
+    "system_info":  {
+                        "cuda_device":  "NVIDIA RTX A5000",
+                        "gpu_used":  true,
+                        "phase_timings":  {
+                                              "phase1_foundation":  3.28,
+                                              "phase2_intelligence":  11.4,
+                                              "phase3_edl":  0.01,
+                                              "phase4_validation":  0,
+                                              "phase5_rendering":  30.26,
+                                              "total":  44.95
+                                          },
+                        "phases_completed":  [
+                                                 "Foundation",
+                                                 "Intelligence",
+                                                 "EDL",
+                                                 "Validation",
+                                                 "Rendering"
+                                             ]
+                    }
+}

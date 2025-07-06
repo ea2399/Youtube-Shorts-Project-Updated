@@ -15,6 +15,8 @@ from typing import Dict, Any, Optional, List
 from pathlib import Path
 import time
 import subprocess
+import boto3
+from botocore.config import Config
 
 # Add app to Python path
 sys.path.insert(0, '/app')
@@ -71,9 +73,13 @@ def runpod_handler(event):
         print(f"🐛 Debug mode: {debug_mode}")
         
         # Create persistent workspace for file access
-        workspace = Path("/app/outputs") / f"job_{int(time.time())}"
+        job_id = f"job_{int(time.time())}"
+        workspace = Path("/app/outputs") / job_id
         workspace.mkdir(parents=True, exist_ok=True)
         print(f"💾 Workspace: {workspace}")
+        
+        # Initialize R2 client
+        r2_client = init_r2_client()
         
         debug_info = {} if debug_mode else None
         
@@ -171,6 +177,10 @@ def runpod_handler(event):
             debug_info=debug_info
         )
         
+        # Upload clips to R2 and get public URLs
+        print(f"☁️ Uploading {len(clips)} clips to R2...")
+        clips_with_urls = upload_clips_to_r2(clips, r2_client, job_id)
+        
         phase5_time = time.time() - phase5_start
         print(f"✅ Rendered: {len(clips)} final clips ({phase5_time:.1f}s)")
         
@@ -178,76 +188,11 @@ def runpod_handler(event):
         total_time = time.time() - start_time
         
         # =================================================================
-        # PREPARE RESULTS WITH FILE ACCESS
+        # PREPARE RESULTS WITH R2 URLS
         # =================================================================
         
-        # Handle video files with smart size-based approach
-        accessible_clips = []
-        for clip in clips:
-            clip_path = clip.get('path', '')
-            if os.path.exists(clip_path):
-                try:
-                    file_size = os.path.getsize(clip_path)
-                    
-                    # Smart approach: smaller files use base64, larger files get chunked
-                    if file_size < 3 * 1024 * 1024:  # 3MB limit for base64
-                        # Read video file and encode as base64
-                        with open(clip_path, 'rb') as video_file:
-                            video_data = video_file.read()
-                            import base64
-                            video_base64 = base64.b64encode(video_data).decode('utf-8')
-                        
-                        accessible_clips.append({
-                            **clip,
-                            'file_size': file_size,
-                            'video_data': video_base64,  # Base64 encoded video
-                            'download_filename': clip['filename'],
-                            'mime_type': 'video/mp4'
-                        })
-                        print(f"📦 Encoded clip {clip['id']}: {file_size/1024/1024:.1f}MB")
-                        
-                    elif file_size < 8 * 1024 * 1024:  # 8MB limit for chunked base64
-                        # Read video file in chunks and encode
-                        chunk_size = 1024 * 1024  # 1MB chunks
-                        video_chunks = []
-                        
-                        with open(clip_path, 'rb') as video_file:
-                            while True:
-                                chunk = video_file.read(chunk_size)
-                                if not chunk:
-                                    break
-                                import base64
-                                chunk_b64 = base64.b64encode(chunk).decode('utf-8')
-                                video_chunks.append(chunk_b64)
-                        
-                        accessible_clips.append({
-                            **clip,
-                            'file_size': file_size,
-                            'video_chunks': video_chunks,  # Chunked base64 data
-                            'chunk_count': len(video_chunks),
-                            'download_filename': clip['filename'],
-                            'mime_type': 'video/mp4'
-                        })
-                        print(f"📦 Chunked clip {clip['id']}: {file_size/1024/1024:.1f}MB ({len(video_chunks)} chunks)")
-                        
-                    else:
-                        # File too large - provide metadata and suggest alternative delivery
-                        accessible_clips.append({
-                            **clip,
-                            'file_size': file_size,
-                            'download_filename': clip['filename'],
-                            'mime_type': 'video/mp4',
-                            'status': 'too_large_for_response',
-                            'note': f"File ({file_size/1024/1024:.1f}MB) exceeds response limits. Use alternative delivery method."
-                        })
-                        print(f"📋 Clip {clip['id']} metadata only: {file_size/1024/1024:.1f}MB (too large)")
-                    
-                except Exception as e:
-                    print(f"❌ Failed to process {clip['id']}: {e}")
-                    accessible_clips.append({
-                        **clip,
-                        'error': f"Failed to process: {e}"
-                    })
+        # Use R2-uploaded clips with public URLs  
+        accessible_clips = clips_with_urls
         
         # Comprehensive result with all debug info
         result = {
@@ -770,6 +715,12 @@ def fallback_render_clip(video_path: Path, output_path: Path, start_time: float,
                 "-preset", preset
             ]
             
+            # Add compression for smaller files
+            if encoder == "h264_nvenc":
+                cmd_parts.extend(["-crf", "28"])  # Higher compression for GPU
+            else:
+                cmd_parts.extend(["-crf", "26"])  # Good compression for CPU
+            
             # Vertical reframing
             if vertical:
                 cmd_parts.extend(["-vf", "scale=720:1280:force_original_aspect_ratio=increase,crop=720:1280"])
@@ -847,6 +798,92 @@ def get_video_fps(video_path: Path) -> float:
         return fps if fps > 0 else 30.0
     except:
         return 30.0
+
+def init_r2_client():
+    """Initialize R2 client with credentials"""
+    try:
+        r2_config = Config(
+            region_name='auto',
+            s3={
+                'addressing_style': 'path'
+            }
+        )
+        
+        r2_client = boto3.client(
+            's3',
+            endpoint_url='https://7f6fafa0199d03a17e4f0932c52f6fe4.r2.cloudflarestorage.com',
+            aws_access_key_id='d3534c85b388a677d89d32b04f1dc1ca',
+            aws_secret_access_key='fac69957a77aa824e37b5b73d23d4a8b85bafc7a04a3c5604077a7444b59a2c2',
+            config=r2_config
+        )
+        
+        print("✅ R2 client initialized successfully")
+        return r2_client
+        
+    except Exception as e:
+        print(f"❌ Failed to initialize R2 client: {e}")
+        return None
+
+def upload_clips_to_r2(clips: List[Dict], r2_client, job_id: str) -> List[Dict]:
+    """Upload clips to R2 and return clips with public URLs"""
+    if not r2_client:
+        print("❌ No R2 client available, returning clips without upload")
+        return clips
+    
+    bucket_name = 'torah-media-agency'
+    base_url = 'https://torah-media-agency.r2.dev'
+    
+    uploaded_clips = []
+    
+    for clip in clips:
+        try:
+            local_path = clip.get('path')
+            filename = clip.get('filename')
+            
+            if not local_path or not os.path.exists(local_path):
+                print(f"❌ Local file not found: {local_path}")
+                continue
+            
+            # R2 key: shorts/job_123456/clip_001_vertical.mp4
+            r2_key = f"shorts/{job_id}/{filename}"
+            
+            # Upload to R2
+            print(f"☁️ Uploading {filename} to R2...")
+            with open(local_path, 'rb') as file_data:
+                r2_client.upload_fileobj(
+                    file_data,
+                    bucket_name,
+                    r2_key,
+                    ExtraArgs={'ContentType': 'video/mp4'}
+                )
+            
+            # Generate public URL
+            public_url = f"{base_url}/{r2_key}"
+            
+            # Add R2 info to clip
+            uploaded_clip = {
+                **clip,
+                'r2_url': public_url,
+                'r2_key': r2_key,
+                'r2_bucket': bucket_name,
+                'download_url': public_url,  # Direct download link
+                'status': 'uploaded_to_r2'
+            }
+            
+            uploaded_clips.append(uploaded_clip)
+            print(f"✅ Uploaded: {public_url}")
+            
+        except Exception as e:
+            print(f"❌ Failed to upload {clip.get('filename', 'unknown')}: {e}")
+            # Add clip without R2 URL on failure
+            uploaded_clips.append({
+                **clip,
+                'status': 'upload_failed',
+                'error': str(e)
+            })
+    
+    print(f"☁️ R2 Upload complete: {len([c for c in uploaded_clips if c.get('r2_url')])} successful")
+    return uploaded_clips
 
 # RunPod serverless entry point
 if __name__ == "__main__":
