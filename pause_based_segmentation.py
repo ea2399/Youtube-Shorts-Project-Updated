@@ -78,11 +78,21 @@ class PauseBasedSegmenter:
             if "words" in segment:
                 # Word-level timing available
                 for word_data in segment["words"]:
-                    word_timings.append(WordTiming(
-                        word=word_data["word"],
-                        start=word_data["start"],
-                        end=word_data["end"]
-                    ))
+                    # Skip malformed word entries
+                    if not isinstance(word_data, dict):
+                        continue
+                    if not all(key in word_data for key in ["word", "start", "end"]):
+                        continue
+                    
+                    try:
+                        word_timings.append(WordTiming(
+                            word=str(word_data["word"]),
+                            start=float(word_data["start"]),
+                            end=float(word_data["end"])
+                        ))
+                    except (TypeError, ValueError) as e:
+                        # Skip word entries with invalid timing data
+                        continue
             else:
                 # Fall back to segment-level timing
                 # Estimate word timing within the segment

@@ -1060,7 +1060,49 @@ def extract_clips_with_ai_logging(video_path: str, transcript: Dict, num_clips: 
         print("🔍 STEP 1: Pause-based segmentation")
         if import_status.get('pause_based_segmentation') == 'success':
             segmenter = pause_based_segmentation.PauseBasedSegmenter()
-            segments = segmenter.segment_transcript(transcript)
+            
+            # Debug transcript structure
+            print(f"🔍 DEBUG: Transcript structure analysis...")
+            sample_segments = transcript.get('segments', [])[:2]
+            for i, seg in enumerate(sample_segments):
+                print(f"    Segment {i+1} keys: {list(seg.keys())}")
+                if 'words' in seg:
+                    sample_words = seg['words'][:3] if seg['words'] else []
+                    for j, word in enumerate(sample_words):
+                        print(f"        Word {j+1} keys: {list(word.keys())}")
+                        print(f"        Word {j+1} data: {word}")
+            
+            try:
+                segments = segmenter.segment_transcript(transcript)
+                print(f"✅ Pause-based segmentation created {len(segments)} segments")
+            except Exception as e:
+                print(f"❌ Pause-based segmentation failed: {e}")
+                import traceback
+                traceback.print_exc()
+                print(f"🔍 Trying enhanced segment-based approach...")
+                
+                # Enhanced fallback: Create segments from transcript segments with proper filtering
+                segments = []
+                for seg in transcript.get('segments', []):
+                    duration = seg.get('end', 0) - seg.get('start', 0)
+                    if min_duration <= duration <= max_duration:  # Use actual duration limits
+                        # Create a segment object that matches NaturalSegment interface
+                        class SimpleSegment:
+                            def __init__(self, start, end, text):
+                                self.start = float(start)
+                                self.end = float(end)
+                                self.duration = float(end - start)
+                                self.text = str(text)
+                                self.word_count = len(text.split()) if text else 0
+                                self.words = []  # Empty for now
+                        
+                        segments.append(SimpleSegment(
+                            seg.get('start', 0),
+                            seg.get('end', 0), 
+                            seg.get('text', '')
+                        ))
+                
+                print(f"✅ Enhanced fallback segmentation created {len(segments)} segments")
             
             if data_flow_log is not None:
                 data_flow_log.append({

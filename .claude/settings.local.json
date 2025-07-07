@@ -24,7 +24,8 @@
       "Bash(ls:*)",
       "Bash(./pre_build_check.sh:*)",
       "Bash(./validate_deps.sh)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "WebFetch(domain:pub-df98462245734d62b0041de219b0d8bd.r2.dev)"
     ],
     "deny": []
   }

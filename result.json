@@ -1,4 +1,495 @@
 ﻿{
-    "status":  "error",
-    "traceback":  "Traceback (most recent call last):\n  File \"/app/production_runpod_handler.py\", line 500, in real_audio_intelligence\n    segments = pause_based_segmentation.segment_by_pauses(\nAttributeError: module \u0027pause_based_segmentation\u0027 has no attribute \u0027segment_by_pauses\u0027\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/app/production_runpod_handler.py\", line 139, in runpod_handler\n    audio_analysis = real_audio_intelligence(video_path, language, debug_info)\n  File \"/app/production_runpod_handler.py\", line 525, in real_audio_intelligence\n    raise Exception(f\"Audio analysis failed: {e}\")\nException: Audio analysis failed: module \u0027pause_based_segmentation\u0027 has no attribute \u0027segment_by_pauses\u0027\n"
+    "clips":  [
+
+              ],
+    "data_flow_log":  [
+                          {
+                              "input":  {
+                                            "video_url":  "https://pub-df98462245734d62b0041de219b0d8bd.r2.dev/videos/64627bda-da5d-4eb5-ad2c-28024db51808.mp4"
+                                        },
+                              "output":  {
+                                             "file_size_mb":  249.85772323608398,
+                                             "video_info":  {
+                                                                "duration":  2532.0294999999996,
+                                                                "fps":  23.976023976023978,
+                                                                "frame_count":  60708,
+                                                                "height":  720,
+                                                                "width":  1280
+                                                            },
+                                             "video_path":  "/app/outputs/job_1751852356/source_video.mp4"
+                                         },
+                              "phase":  "PHASE_1_FOUNDATION",
+                              "processing_time":  6.543659925460815,
+                              "status":  "success",
+                              "step":  "video_download"
+                          },
+                          {
+                              "input":  {
+                                            "language":  "en",
+                                            "video_path":  "/app/outputs/job_1751852356/source_video.mp4"
+                                        },
+                              "output":  {
+                                             "duration":  2532.0294999999996,
+                                             "filler_words_count":  0,
+                                             "method":  "pause_based_segmentation",
+                                             "sample_segments":  [
+                                                                     {
+                                                                         "confidence":  0.9,
+                                                                         "end":  30,
+                                                                         "speech":  true,
+                                                                         "start":  0
+                                                                     },
+                                                                     {
+                                                                         "confidence":  0.9,
+                                                                         "end":  60,
+                                                                         "speech":  true,
+                                                                         "start":  30
+                                                                     },
+                                                                     {
+                                                                         "confidence":  0.9,
+                                                                         "end":  90,
+                                                                         "speech":  true,
+                                                                         "start":  60
+                                                                     }
+                                                                 ],
+                                             "total_segments":  85
+                                         },
+                              "phase":  "PHASE_2_INTELLIGENCE",
+                              "status":  "success",
+                              "step":  "audio_analysis"
+                          },
+                          {
+                              "input":  {
+                                            "video_path":  "/app/outputs/job_1751852356/source_video.mp4"
+                                        },
+                              "output":  {
+                                             "face_tracks":  0,
+                                             "method":  "scenedetect",
+                                             "object_detections":  0,
+                                             "scene_count":  2
+                                         },
+                              "phase":  "PHASE_2_INTELLIGENCE",
+                              "status":  "success",
+                              "step":  "visual_analysis"
+                          },
+                          {
+                              "input":  {
+                                            "transcript_url":  "https://pub-df98462245734d62b0041de219b0d8bd.r2.dev/transcripts/64627bda-da5d-4eb5-ad2c-28024db51808/64627bda-da5d-4eb5-ad2c-28024db51808.json"
+                                        },
+                              "output":  {
+                                             "language":  "en",
+                                             "sample_segments":  [
+                                                                     {
+                                                                         "end":  10.239,
+                                                                         "speaker":  "SPEAKER_01",
+                                                                         "start":  1.212,
+                                                                         "text":  " That is, the first time that I had a Rebbe share this over to me, he\u0027s like, Moshe Chaim, I know you\u0027re going to think that a Hasidic Rebbe is writing this, but it\u0027s the Ba\u0027akh.",
+                                                                         "words":  [
+                                                                                       {
+                                                                                           "end":  1.372,
+                                                                                           "score":  0.841,
+                                                                                           "speaker":  "SPEAKER_01",
+                                                                                           "start":  1.212,
+                                                                                           "word":  "That"
+                                                                                       },
+                                                                                       {
+                                                                                           "end":  1.552,
+                                                                                           "score":  0.861,
+                                                                                           "speaker":  "SPEAKER_01",
+                                                                                           "start":  1.432,
+                                                                                           "word":  "is,"
+                                                                                       },
+                                                                                       {
+                                                                                           "end":  3.274,
+                                                                                           "score":  0.686,
+                                                                                           "speaker":  "SPEAKER_01",
+                                                                                           "start":  3.174,
+                                                                                           "word":  "the"
+                                                                                       },
+                                                                                       {
+                                                                                           "end":  3.454,
+                                                                                           "score":  0.706,
+                                                                                           "speaker":  "SPEAKER_01",
+                                                                                           "start":  3.294,
+                                                                                           "word":  "first"
+                                                                                       },
+                                                                                       {
+                                                                                           "end":  3.634,
+                                                                                           "score":  0.878,
+                                                                                           "speaker":  "SPEAKER_01",
+                                                                                           "start":  3.494,
+                                                                                           "word":  "time"
+                                                                                       },
+                                                                                       {
+                                                                                           "end":  3.794,
+                                                                                           "score":  0.658,
+                                                                                           "speaker":  "SPEAKER_01",
+                                                                                           "start":  3.654,
+                                                                                           "word":  "that"
+                                                                                       },
+                                                                                       {
+                                                                                           "end":  3.834,
+                                                                                           "score":  0.774,
+                                                                                           "speaker":  "SPEAKER_01",
+                                                                                           "start":  3.814,
+                                                                                           "word":  "I"
+                                                                                       },
+                                                                                       {
+                                                                                           "end":  3.974,
+                                                                                           "score":  0.871,
+                                                                                           "speaker":  "SPEAKER_01",
+                                                                                           "start":  3.874,
+                                                                                           "word":  "had"
+                                                                                       },
+                                                                                       {
+                                                                                           "end":  4.014,
+                                                                                           "score":  0.429,
+                                                                                           "speaker":  "SPEAKER_01",
+                                                                                           "start":  3.994,
+                                                                                           "word":  "a"
+                                                                                       },
+                                                                                       {
+                                                                                           "end":  4.355,
+                                                                                           "score":  0.778,
+                                                                                           "speaker":  "SPEAKER_01",
+                                                                                           "start":  4.074,
+                                                                                           "word":  "Rebbe"
+                                                                                       },
+                                                                                       {
+                                                                                           "end":  4.875,
+                                                                                           "score":  0.932,
+                                                                                           "speaker":  "SPEAKER_01",
+                                                                                           "start":  4.695,
+                                                                                           "word":  "share"
+                                                                                       },
+                                                                                       {
+                                                                                           "end":  5.015,
+                                                                                           "score":  0.836,
+                                                                                           "speaker":  "SPEAKER_01",
+                                                                                           "start":  4.895,
+                                                                                           "word":  "this"
+                                                                                       },
+                                                                                       {
+                                                                                           "end":  5.215,
+                                                                                           "score":  0.863,
+                                                                                           "speaker":  "SPEAKER_01",
+                                                                                           "start":  5.075,
+                                                                                           "word":  "over"
+                                                                                       },
+                                                                                       {
+                                                                                           "end":  5.275,
+                                                                                           "score":  0.964,
+                                                                                           "speaker":  "SPEAKER_01",
+                                                                                           "start":  5.235,
+                                                                                           "word":  "to"
+                                                                                       },
+                                                                                       {
+                                                                                           "end":  5.455,
+                                                                                           "score":  0.906,
+                                                                                           "speaker":  "SPEAKER_01",
+                                                                                           "start":  5.315,
+                                                                                           "word":  "me,"
+                                                                                       },
+                                                                                       {
+                                                                                           "end":  6.056,
+                                                                                           "score":  0.859,
+                                                                                           "speaker":  "SPEAKER_01",
+                                                                                           "start":  5.916,
+                                                                                           "word":  "he\u0027s"
+                                                                                       },
+                                                                                       {
+                                                                                           "end":  6.196,
+                                                                                           "score":  0.908,
+                                                                                           "speaker":  "SPEAKER_01",
+                                                                                           "start":  6.076,
+                                                                                           "word":  "like,"
+                                                                                       },
+                                                                                       {
+                                                                                           "end":  6.476,
+                                                                                           "score":  0.703,
+                                                                                           "speaker":  "SPEAKER_01",
+                                                                                           "start":  6.216,
+                                                                                           "word":  "Moshe"
+                                                                                       },
+                                                                                       {
+                                                                                           "end":  6.757,
+                                                                                           "score":  0.514,
+                                                                                           "speaker":  "SPEAKER_01",
+                                                                                           "start":  6.516,
+                                                                                           "word":  "Chaim,"
+                                                                                       },
+                                                                                       {
+                                                                                           "end":  6.797,
+                                                                                           "score":  0,
+                                                                                           "speaker":  "SPEAKER_01",
+                                                                                           "start":  6.777,
+                                                                                           "word":  "I"
+                                                                                       },
+                                                                                       {
+                                                                                           "end":  7.057,
+                                                                                           "score":  0.001,
+                                                                                           "speaker":  "SPEAKER_01",
+                                                                                           "start":  6.977,
+                                                                                           "word":  "know"
+                                                                                       },
+                                                                                       {
+                                                                                           "end":  7.217,
+                                                                                           "score":  0.148,
+                                                                                           "speaker":  "SPEAKER_01",
+                                                                                           "start":  7.077,
+                                                                                           "word":  "you\u0027re"
+                                                                                       },
+                                                                                       {
+                                                                                           "end":  7.337,
+                                                                                           "score":  0.228,
+                                                                                           "speaker":  "SPEAKER_01",
+                                                                                           "start":  7.237,
+                                                                                           "word":  "going"
+                                                                                       },
+                                                                                       {
+                                                                                           "end":  7.397,
+                                                                                           "score":  0.236,
+                                                                                           "speaker":  "SPEAKER_01",
+                                                                                           "start":  7.357,
+                                                                                           "word":  "to"
+                                                                                       },
+                                                                                       {
+                                                                                           "end":  7.537,
+                                                                                           "score":  0.859,
+                                                                                           "speaker":  "SPEAKER_01",
+                                                                                           "start":  7.417,
+                                                                                           "word":  "think"
+                                                                                       },
+                                                                                       {
+                                                                                           "end":  7.677,
+                                                                                           "score":  0.71,
+                                                                                           "speaker":  "SPEAKER_01",
+                                                                                           "start":  7.577,
+                                                                                           "word":  "that"
+                                                                                       },
+                                                                                       {
+                                                                                           "end":  7.737,
+                                                                                           "score":  0.411,
+                                                                                           "speaker":  "SPEAKER_01",
+                                                                                           "start":  7.697,
+                                                                                           "word":  "a"
+                                                                                       },
+                                                                                       {
+                                                                                           "end":  8.178,
+                                                                                           "score":  0.53,
+                                                                                           "speaker":  "SPEAKER_01",
+                                                                                           "start":  7.757,
+                                                                                           "word":  "Hasidic"
+                                                                                       },
+                                                                                       {
+                                                                                           "end":  8.338,
+                                                                                           "score":  0.62,
+                                                                                           "speaker":  "SPEAKER_01",
+                                                                                           "start":  8.198,
+                                                                                           "word":  "Rebbe"
+                                                                                       },
+                                                                                       {
+                                                                                           "end":  8.478,
+                                                                                           "score":  0.6,
+                                                                                           "speaker":  "SPEAKER_01",
+                                                                                           "start":  8.378,
+                                                                                           "word":  "is"
+                                                                                       },
+                                                                                       {
+                                                                                           "end":  8.738,
+                                                                                           "score":  0.881,
+                                                                                           "speaker":  "SPEAKER_01",
+                                                                                           "start":  8.498,
+                                                                                           "word":  "writing"
+                                                                                       },
+                                                                                       {
+                                                                                           "end":  8.938,
+                                                                                           "score":  0.828,
+                                                                                           "speaker":  "SPEAKER_01",
+                                                                                           "start":  8.778,
+                                                                                           "word":  "this,"
+                                                                                       },
+                                                                                       {
+                                                                                           "end":  9.679,
+                                                                                           "score":  0.989,
+                                                                                           "speaker":  "SPEAKER_01",
+                                                                                           "start":  9.599,
+                                                                                           "word":  "but"
+                                                                                       },
+                                                                                       {
+                                                                                           "end":  9.819,
+                                                                                           "score":  0.859,
+                                                                                           "speaker":  "SPEAKER_01",
+                                                                                           "start":  9.719,
+                                                                                           "word":  "it\u0027s"
+                                                                                       },
+                                                                                       {
+                                                                                           "end":  9.919,
+                                                                                           "score":  0.976,
+                                                                                           "speaker":  "SPEAKER_01",
+                                                                                           "start":  9.839,
+                                                                                           "word":  "the"
+                                                                                       },
+                                                                                       {
+                                                                                           "end":  10.239,
+                                                                                           "score":  0.588,
+                                                                                           "speaker":  "SPEAKER_01",
+                                                                                           "start":  9.959,
+                                                                                           "word":  "Ba\u0027akh."
+                                                                                       }
+                                                                                   ]
+                                                                     },
+                                                                     {
+                                                                         "end":  11.58,
+                                                                         "speaker":  "SPEAKER_01",
+                                                                         "start":  11.26,
+                                                                         "text":  "Okay?",
+                                                                         "words":  [
+                                                                                       {
+                                                                                           "end":  11.58,
+                                                                                           "score":  0.688,
+                                                                                           "speaker":  "SPEAKER_01",
+                                                                                           "start":  11.26,
+                                                                                           "word":  "Okay?"
+                                                                                       }
+                                                                                   ]
+                                                                     }
+                                                                 ],
+                                             "source":  "WhisperX_URL",
+                                             "total_segments":  469
+                                         },
+                              "phase":  "PHASE_2_INTELLIGENCE",
+                              "status":  "success",
+                              "step":  "transcript_fetch"
+                          },
+                          {
+                              "input":  {
+                                            "audio_segments":  85,
+                                            "num_clips_requested":  3,
+                                            "quality_level":  "ultimate",
+                                            "transcript_segments":  469,
+                                            "visual_scenes":  2
+                                        },
+                              "output":  {
+                                             "candidate_clips_generated":  0,
+                                             "edl_version":  1,
+                                             "overall_quality_estimate":  0,
+                                             "processing_method":  "unknown",
+                                             "sample_clips":  [
+
+                                                              ]
+                                         },
+                              "phase":  "PHASE_3_EDL_GENERATION",
+                              "processing_time":  0.004436492919921875,
+                              "status":  "success",
+                              "step":  "multi_modal_fusion"
+                          },
+                          {
+                              "input":  {
+                                            "candidate_clips":  0,
+                                            "max_duration":  60,
+                                            "min_duration":  20
+                                        },
+                              "output":  {
+                                             "overall_quality_score":  0,
+                                             "quality_metrics":  {
+                                                                     "cut_smoothness":  0,
+                                                                     "engagement_score":  0,
+                                                                     "semantic_coherence":  0,
+                                                                     "visual_continuity":  0
+                                                                 },
+                                             "rejected_clips":  0,
+                                             "validated_clips":  0
+                                         },
+                              "phase":  "PHASE_4_QUALITY_VALIDATION",
+                              "processing_time":  0.000027894973754882812,
+                              "status":  "success",
+                              "step":  "quality_enhancement"
+                          },
+                          {
+                              "input":  {
+                                            "language":  "en",
+                                            "subtitles_enabled":  true,
+                                            "validated_clips":  0,
+                                            "vertical_format":  true
+                                        },
+                              "output":  {
+                                             "clips_with_public_urls":  0,
+                                             "final_clips_rendered":  0,
+                                             "r2_uploads_successful":  0,
+                                             "rendering_method":  "GPU_NVENC",
+                                             "total_size_mb":  0
+                                         },
+                              "phase":  "PHASE_5_PRODUCTION_RENDERING",
+                              "processing_time":  0.00005745887756347656,
+                              "status":  "success",
+                              "step":  "gpu_accelerated_rendering"
+                          }
+                      ],
+    "debug_info":  {
+                       "audio_analysis":  {
+                                              "method":  "pause_based_segmentation",
+                                              "pause_threshold":  1,
+                                              "segments_detected":  85
+                                          },
+                       "download":  {
+                                        "download_result":  "/app/outputs/job_1751852356/downloads/full.mp4",
+                                        "output_path":  "/app/outputs/job_1751852356/source_video.mp4",
+                                        "success":  true,
+                                        "url":  "https://pub-df98462245734d62b0041de219b0d8bd.r2.dev/videos/64627bda-da5d-4eb5-ad2c-28024db51808.mp4"
+                                    },
+                       "rendering":  {
+                                         "clips_attempted":  0,
+                                         "clips_successful":  0,
+                                         "success_rate":  0,
+                                         "workspace":  "/app/outputs/job_1751852356"
+                                     },
+                       "validation":  {
+                                          "clips_after":  0,
+                                          "clips_before":  0,
+                                          "duration_range":  "20-60s",
+                                          "quality_threshold":  0.7
+                                      },
+                       "visual_analysis":  {
+                                               "fps":  23.976023976023978,
+                                               "method":  "scenedetect",
+                                               "scenes_detected":  2
+                                           }
+                   },
+    "metadata":  {
+                     "clips_generated":  0,
+                     "clips_requested":  3,
+                     "language":  "en",
+                     "max_duration":  60,
+                     "min_duration":  20,
+                     "processing_time":  64.84,
+                     "quality_level":  "ultimate",
+                     "source_duration":  2532.0294999999996,
+                     "subtitles_enabled":  true,
+                     "vertical_format":  true,
+                     "workspace":  "/app/outputs/job_1751852356"
+                 },
+    "quality_metrics":  {
+                            "overall_score":  0
+                        },
+    "status":  "success",
+    "system_info":  {
+                        "cuda_device":  "NVIDIA RTX A5000",
+                        "gpu_used":  true,
+                        "phase_timings":  {
+                                              "phase1_foundation":  6.54,
+                                              "phase2_intelligence":  58.07,
+                                              "phase3_edl":  0,
+                                              "phase4_validation":  0,
+                                              "phase5_rendering":  0,
+                                              "total":  64.84
+                                          },
+                        "phases_completed":  [
+                                                 "Foundation",
+                                                 "Intelligence",
+                                                 "EDL",
+                                                 "Validation",
+                                                 "Rendering"
+                                             ]
+                    }
 }
